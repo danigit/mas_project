@@ -23,24 +23,18 @@ public class MainDoorAgent extends Agent implements HomeAutomation{
 
         System.out.println("MainDoorAgent starting...");
 
-        // registering the service provided in the yellow pages
-        Util.registerService(this, getAID(),"door-status", "HA-door-status");
+        // registering the services provided in the yellow pages
+        Util.registerService(this,"door-service", "HA-door-service");
 
         // adding behaviour to the agent
-        // for now I define a OneShotBehaviour because the door has to send events only when some
-        // internal state has changed
-        // another way of modeling this could be that the agent continuously interrogates the sensors
-        // to see their status. In this case we have to use a TickerBehaviour
-        addBehaviour(new OneShotBehaviour() {
-            @Override
-            public void action() {
-                System.out.println("MainDoorAgent sending action...");
-            }
-        });
-
         addBehaviour(new DoorBehaviour(this, 1000));
     }
 
+    /**
+     * Class that implements the MainDoor behaviour, it sends
+     * every x seconds a message to the Controller to inform him
+     * about the state of the door
+     */
     private class DoorBehaviour extends TickerBehaviour{
 
         public DoorBehaviour(Agent a, long period) {
