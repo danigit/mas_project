@@ -4,11 +4,15 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import jade.util.Logger;
 
 /**
  * Class that implements static methods that are useful to the agents
  */
 public class Util {
+
+    public static Logger logger = null;
 
     /**
      * Method that register the services of and agent with the yellow pages
@@ -18,9 +22,7 @@ public class Util {
      */
     public static void registerService(Agent agent, String serviceType, String serviceName){
         DFAgentDescription agentDescription = new DFAgentDescription();
-        Util.log(agent.toString());
         agentDescription.setName(agent.getAID());
-
         ServiceDescription serviceDescription = new ServiceDescription();
         serviceDescription.setType(serviceType);
         serviceDescription.setName(serviceName);
@@ -55,7 +57,17 @@ public class Util {
         return null;
     }
 
+    public static ACLMessage subscribeToService(Agent agent, AID defaultDF, String serviceType){
+        DFAgentDescription agentDescription = new DFAgentDescription();
+        ServiceDescription serviceDescription = new ServiceDescription();
+        serviceDescription.setType(serviceType);
+        return DFService.createSubscriptionMessage(agent, defaultDF, agentDescription, null);
+
+    }
+
     public static void log(String text){
         System.out.println(text);
     }
 }
+
+// if we want to deregister an agent we do it in takeDown

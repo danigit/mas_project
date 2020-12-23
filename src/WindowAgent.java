@@ -2,7 +2,13 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
+import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.proto.SubscriptionResponder;
+
+import java.util.Random;
 
 /**
  * Class that defines a WindowAgent. This class represents a window of the apartment, and it is responsible
@@ -10,7 +16,7 @@ import jade.lang.acl.ACLMessage;
  */
 public class WindowAgent extends Agent implements HomeAutomation{
 
-    private WindowStates windowState = WindowStates.CLOSED;
+    private WindowStates windowState = WindowStates.BROKEN;
 
     @Override
     protected void setup() {
@@ -18,6 +24,7 @@ public class WindowAgent extends Agent implements HomeAutomation{
 
         System.out.println("WindowAgent started...");
 
+        // I can register multiple services at once
         Util.registerService(this,"window-service", "HA-window-service");
 
         // adding behaviour to the window
@@ -37,14 +44,26 @@ public class WindowAgent extends Agent implements HomeAutomation{
 
         @Override
         protected void onTick() {
+            // changing the state of the window randomly
+            randomWindowState();
             ACLMessage windowStateMessage = new ACLMessage(ACLMessage.INFORM);
             windowStateMessage.setContent(windowState.toString());
-            windowStateMessage.addReceiver(new AID("Controller", AID.ISLOCALNAME));
+            windowStateMessage.setConversationId("window-status");
+            windowStateMessage.addReceiver(new AID(ControllerAgent.NAME, AID.ISLOCALNAME));
             send(windowStateMessage);
         }
     }
 
     public void changeWindowState(WindowStates windowState){
         this.windowState = windowState;
+    }
+
+    public void randomWindowState(){
+        Random random = new Random();
+        if(random.nextInt() % 2 == 0){
+            this.windowState = WindowStates.BROKEN;
+        }else{
+            this.windowState = WindowStates.CLOSED;
+        }
     }
 }

@@ -7,6 +7,7 @@ import jade.lang.acl.MessageTemplate;
 
 public class HeatAgent extends Agent implements HomeAutomation{
 
+    private HeatAgent heatState = HeatAgent.STOP;
     private double heatValue = 26.0;
 
     @Override
@@ -31,12 +32,25 @@ public class HeatAgent extends Agent implements HomeAutomation{
             if (requestMessage != null){
                 String messageContent = requestMessage.getContent();
 
-                if (messageContent.equals(HeatAgent.GET_TEMPERATURE.toString())){
+                if(messageContent.equals(HeatAgent.START.toString())){
+                    heatState = HeatAgent.START;
+                    Util.log("The heat is on!");
+                    ACLMessage reply = requestMessage.createReply();
+                    reply.setPerformative(ACLMessage.CONFIRM);
+                    reply.setContent(heatState.toString());
+                    send(reply);
+                } else if (messageContent.equals(HeatAgent.STOP.toString())){
+                    heatState = HeatAgent.STOP;
+                    Util.log("The heat is off!");
+                    ACLMessage reply = requestMessage.createReply();
+                    reply.setPerformative(ACLMessage.CONFIRM);
+                    reply.setContent(heatState.toString());
+                    send(reply);
+                } else if (messageContent.equals(HeatAgent.GET_TEMPERATURE.toString())){
                     // here we should use INFORM-RESULT but JADE does not support it yet
                     ACLMessage responseMessage = new ACLMessage(ACLMessage.INFORM);
                     responseMessage.setContent(String.valueOf(heatValue));
-                    responseMessage.setConversationId("temp-value");
-                    responseMessage.addReceiver(new AID("Controller", AID.ISLOCALNAME));
+                    responseMessage.addReceiver(new AID(ControllerAgent.NAME, AID.ISLOCALNAME));
                     send(responseMessage);
                 } else if(messageContent.equals(HeatAgent.SET_TEMPERATURE.toString())){
                     String temp = requestMessage.getUserDefinedParameter("temp");
@@ -45,8 +59,13 @@ public class HeatAgent extends Agent implements HomeAutomation{
                     ACLMessage reply = requestMessage.createReply();
                     reply.setPerformative(ACLMessage.CONFIRM);
                     reply.setContent(String.valueOf(heatValue));
-                    reply.setConversationId("temp-set");
                     send(reply);
+                } else{
+                    // here we should use INFORM-RESULT but JADE does not support it yet
+                    ACLMessage responseMessage = new ACLMessage(ACLMessage.INFORM);
+                    responseMessage.setContent(UNKNOWN_COMMAND);
+                    responseMessage.addReceiver(new AID(CONTROLLER, AID.ISLOCALNAME));
+                    send(responseMessage);
                 }
             } else{
                 block();

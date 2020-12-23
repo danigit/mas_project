@@ -39,7 +39,7 @@ public class ShutterAgent extends Agent implements HomeAutomation{
         protected void onTick() {
             ACLMessage shutterStateMessage = new ACLMessage(ACLMessage.INFORM);
             shutterStateMessage.setContent(shutterState.toString());
-            shutterStateMessage.addReceiver(new AID("Controller", AID.ISLOCALNAME));
+            shutterStateMessage.addReceiver(new AID(ControllerAgent.NAME, AID.ISLOCALNAME));
             send(shutterStateMessage);
         }
     }

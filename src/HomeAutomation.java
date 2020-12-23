@@ -1,9 +1,25 @@
-import com.sun.org.apache.xpath.internal.functions.FuncSubstring;
+import jade.domain.FIPANames;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 public interface HomeAutomation {
 
+    String CONTROLLER = "Controller";
+    String PERSON = "Person";
+    String UNKNOWN_COMMAND = "Unknown command";
+    String BROKEN = "BROKEN";
+    String AGREE = "AGREE";
+
+    MessageTemplate responderTemplate = MessageTemplate
+            .and(MessageTemplate
+                .or(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE),
+                    MessageTemplate.MatchPerformative(ACLMessage.CANCEL)),
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE));
+
     // enum that define the heat agent services
     enum HeatAgent{
+        START,
+        STOP,
         GET_TEMPERATURE,
         SET_TEMPERATURE
     }
@@ -28,6 +44,12 @@ public interface HomeAutomation {
     enum ShutterStates{
         UP,
         DOWN,
+        BROKEN
+    }
+
+    // enum that defines the Fridge agent states
+    enum FridgeStates{
+        RUNNING,
         BROKEN
     }
 }
