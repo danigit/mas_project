@@ -7,7 +7,9 @@ public interface HomeAutomation {
     String CONTROLLER = "Controller";
     String PERSON = "Person";
     String UNKNOWN_COMMAND = "Unknown command";
+    String STATE = "STATE";
     String BROKEN = "BROKEN";
+    String CHANGE_STATE = "CHANGE_STATE";
     String AGREE = "AGREE";
 
     MessageTemplate responderTemplate = MessageTemplate
@@ -17,7 +19,7 @@ public interface HomeAutomation {
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE));
 
     // enum that define the heat agent services
-    enum HeatAgent{
+    enum HeatStates{
         START,
         STOP,
         GET_TEMPERATURE,
@@ -28,9 +30,8 @@ public interface HomeAutomation {
     enum DoorStates{
         LOCKED,
         UNLOCKED,
-        FINGERPRINT_VALID,
-        FINGERPRINT_NOT_VALID,
-        BROKEN
+        BROKEN,
+        NOT_BROKEN
     }
 
     // enum that defines the Window agent states

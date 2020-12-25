@@ -13,7 +13,7 @@ public class State<T> extends Observable {
 
     public void setDoorState(T state) {
         this.state = state;
-        Util.log("Updating the state to: " + this.state.toString());
+//        Util.log("Updating the state to: " + this.state.toString());
         setChanged();
         notifyObservers(this.state);
     }

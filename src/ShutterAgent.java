@@ -18,7 +18,10 @@ public class ShutterAgent extends Agent implements HomeAutomation{
 
         System.out.println("ShutterAgent starting...");
 
-        Util.registerService(this, "shutter-service", "HA-shutter-service");
+        String[] serviceTypes = {"shutter-service"};
+        String[] serviceNames = {"HA-shutter-service"};
+
+        Util.registerService(this, serviceTypes, serviceNames);
 
         // adding behaviour to the agent
         addBehaviour(new ShutterBehaviour(this, 5000));

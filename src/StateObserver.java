@@ -19,9 +19,9 @@ public class StateObserver<T, U> implements Observer, HomeAutomation {
     public void update(Observable o, Object arg) { ;
         if (arg != null){
             state = (T) arg;
-            if (state.toString().equals(BROKEN)){
+            if (state == DoorStates.BROKEN){
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
-                inform.setContent(BROKEN);
+                inform.setContent(state.toString());
                 Method method = null;
                 try {
                     method = subscriptions.getClass().getMethod("notifyAgents", ACLMessage.class);

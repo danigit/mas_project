@@ -17,16 +17,19 @@ public class Util {
     /**
      * Method that register the services of and agent with the yellow pages
      * @param agent - the agent that offers the services
-     * @param serviceType - the type of the service to be registered
-     * @param serviceName - the name of the service to be registered
+     * @param serviceTypes - the type of the service to be registered
+     * @param serviceNames - the name of the service to be registered
      */
-    public static void registerService(Agent agent, String serviceType, String serviceName){
+    public static void registerService(Agent agent, String[] serviceTypes, String[] serviceNames){
         DFAgentDescription agentDescription = new DFAgentDescription();
         agentDescription.setName(agent.getAID());
-        ServiceDescription serviceDescription = new ServiceDescription();
-        serviceDescription.setType(serviceType);
-        serviceDescription.setName(serviceName);
-        agentDescription.addServices(serviceDescription);
+        ServiceDescription serviceDescription = null;
+        for (int i = 0; i < serviceTypes.length; i++) {
+            serviceDescription = new ServiceDescription();
+            serviceDescription.setType(serviceTypes[i]);
+            serviceDescription.setName(serviceNames[i]);
+            agentDescription.addServices(serviceDescription);
+        }
 
         try{
             DFService.register(agent, agentDescription);
@@ -61,8 +64,8 @@ public class Util {
         DFAgentDescription agentDescription = new DFAgentDescription();
         ServiceDescription serviceDescription = new ServiceDescription();
         serviceDescription.setType(serviceType);
+        agentDescription.addServices(serviceDescription);
         return DFService.createSubscriptionMessage(agent, defaultDF, agentDescription, null);
-
     }
 
     public static void log(String text){

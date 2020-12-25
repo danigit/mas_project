@@ -19,7 +19,10 @@ public class FridgeAgent extends Agent implements HomeAutomation{
         System.out.println("FridgeAgent starting...");
 
         // I can register multiple services at once
-        Util.registerService(this,"fridge-service", "HA-fridge-service");
+        String[] serviceTypes = {"fridge-service"};
+        String[] serviceNames = {"HA-fridge-service"};
+
+        Util.registerService(this,serviceTypes, serviceNames);
 
         // adding behaviour to the window
         addBehaviour(new FridgeBehaviour(this, 5000));

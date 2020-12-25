@@ -25,7 +25,10 @@ public class WindowAgent extends Agent implements HomeAutomation{
         System.out.println("WindowAgent started...");
 
         // I can register multiple services at once
-        Util.registerService(this,"window-service", "HA-window-service");
+        String[] serviceTypes = {"window-service"};
+        String[] serviceNames = {"HA-window-service"};
+
+        Util.registerService(this, serviceTypes, serviceNames);
 
         // adding behaviour to the window
         addBehaviour(new WindowBehaviour(this, 5000));
