@@ -4,6 +4,7 @@ import behaviours.HandleWindowRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Window;
 import jade.core.Agent;
+import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
 import utils.Responder;
 import utils.State;
@@ -45,7 +46,27 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
 
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
+        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };//Util.createSubscriptionManager(subscriptions);
 
         Responder windowBehaviour = new Responder(this, responderTemplate, subscriptionManager);
         StateObserver<WindowStates, Responder> windowStateObserver = new StateObserver<>(windowBehaviour);

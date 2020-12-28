@@ -10,20 +10,18 @@ import jade.proto.SubscriptionResponder;
 import java.util.Vector;
 
 public class Responder extends SubscriptionResponder {
-    Agent agent;
-    MessageTemplate messageTemplate;
-    SubscriptionManager subscriptionManager;
+    private final SubscriptionManager subscriptionManager;
 
     public Responder(Agent agent, MessageTemplate messageTemplate, SubscriptionManager subscriptionManager) {
         super(agent, messageTemplate, subscriptionManager);
 
-        this.agent = agent;
-        this.messageTemplate = messageTemplate;
         this.subscriptionManager = subscriptionManager;
     }
 
     @Override
     protected ACLMessage handleSubscription(ACLMessage subscription) throws NotUnderstoodException, RefuseException {
+        Util.log("creating subscription for: " + subscription.getSender().getLocalName() + " with content "+
+                subscription.getContent());
         this.subscriptionManager.register(createSubscription(subscription));
 
         return null;

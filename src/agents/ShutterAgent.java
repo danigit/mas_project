@@ -4,6 +4,7 @@ import behaviours.HandleShutterRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Shutter;
 import jade.core.Agent;
+import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
 import utils.Responder;
 import utils.State;
@@ -43,7 +44,27 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
 
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
+        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };//Util.createSubscriptionManager(subscriptions);
 
         Responder shutterBehaviour = new Responder(this, responderTemplate, subscriptionManager);
         StateObserver<ShutterStates, Responder> shutterStatesObserver = new StateObserver<>(shutterBehaviour);

@@ -65,10 +65,9 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
             try {
                 DFAgentDescription[] result = DFService.decodeNotification(inform.getContent());
                 if (result.length > 0){
-                    for (int i = 0; i < result.length; i++) {
-                        // making the subscription to the founded agents
-                        addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, result));
-                    }
+                    addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, result));
+                } else{
+                    Util.log("No agent for the subscription was found");
                 }
             } catch (FIPAException fipaException) {
                 fipaException.printStackTrace();

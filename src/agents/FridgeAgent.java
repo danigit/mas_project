@@ -5,6 +5,7 @@ import behaviours.HandleFridgeRequestsBehaviour;
 import interfaces.Fridge;
 import interfaces.HomeAutomation;
 import jade.core.Agent;
+import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -53,8 +54,29 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
 
         Util.registerService(this, serviceTypes, serviceNames);
 
-        // adding behaviour to the window
-        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
+        Util.log(String.valueOf(subscriptions.size()));
+        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };
+        Util.log("after size: " + String.valueOf(subscriptions.size()));
 
         Responder fridgeBehaviour = new Responder(this, responderTemplate, subscriptionManager);
         StateObserver<FridgeStates, Responder> fridgeStatesObserver = new StateObserver<>(fridgeBehaviour);

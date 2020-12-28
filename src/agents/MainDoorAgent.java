@@ -4,6 +4,7 @@ import behaviours.HandleDoorRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.MainDoor;
 import jade.core.Agent;
+import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -44,7 +45,27 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
         String[] serviceNames = {"HA-control-service", "HA-door-service"};
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
+        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };
 
         Responder doorBehaviour = new Responder(this, responderTemplate, subscriptionManager);
         StateObserver<DoorStates, Responder> doorStateObserver = new StateObserver<>(doorBehaviour);
