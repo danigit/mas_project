@@ -1,3 +1,5 @@
+package utils;
+
 import java.util.Observable;
 
 public class State<T> extends Observable {
@@ -7,13 +9,12 @@ public class State<T> extends Observable {
         this.state = state;
     }
 
-    public T getDoorState(){
+    public T getValue(){
         return this.state;
     }
 
-    public void setDoorState(T state) {
+    public void setValue(T state) {
         this.state = state;
-//        Util.log("Updating the state to: " + this.state.toString());
         setChanged();
         notifyObservers(this.state);
     }

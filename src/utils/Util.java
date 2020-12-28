@@ -1,3 +1,6 @@
+package utils;
+
+import interfaces.HomeAutomation;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -5,12 +8,19 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
+import sun.util.resources.cldr.id.CalendarData_id_ID;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class that implements static methods that are useful to the agents
  */
-public class Util {
+public class Util implements HomeAutomation {
 
     public static Logger logger = null;
 
@@ -32,6 +42,7 @@ public class Util {
         }
 
         try{
+            // TODO deregister services
             DFService.register(agent, agentDescription);
         } catch (FIPAException fipaException){
             fipaException.printStackTrace();
@@ -68,9 +79,37 @@ public class Util {
         return DFService.createSubscriptionMessage(agent, defaultDF, agentDescription, null);
     }
 
+    public static SubscriptionResponder.SubscriptionManager createSubscriptionManager(Set subscriptions){
+        return new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };
+    }
+
+    public static AID[] getAIDFromDescriptions(DFAgentDescription[] descriptions){
+        AID[] result = new AID[descriptions.length];
+        Arrays.stream(descriptions).map(DFAgentDescription::getName).collect(Collectors.toList()).toArray(result);
+        return result;
+    }
+
     public static void log(String text){
         System.out.println(text);
     }
 }
-
-// if we want to deregister an agent we do it in takeDown

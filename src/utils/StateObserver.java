@@ -1,8 +1,11 @@
+package utils;
+
+import interfaces.HomeAutomation;
 import jade.lang.acl.ACLMessage;
+import utils.Util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -19,7 +22,7 @@ public class StateObserver<T, U> implements Observer, HomeAutomation {
     public void update(Observable o, Object arg) { ;
         if (arg != null){
             state = (T) arg;
-            if (state == DoorStates.BROKEN){
+            if (state.toString().equals(BROKEN)){
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
                 inform.setContent(state.toString());
                 Method method = null;
