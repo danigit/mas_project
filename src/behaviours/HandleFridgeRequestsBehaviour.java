@@ -19,18 +19,29 @@ public class HandleFridgeRequestsBehaviour extends CyclicBehaviour {
         ACLMessage message = myAgent.receive();
 
         if (message != null){
-            switch (message.getPerformative()){
-                case ACLMessage.REQUEST:
-                    if (message.getContent().equals(HomeAutomation.FridgeStates.GET_LIST.toString()) &&
-                            message.getConversationId().equals("get-list")){
-                        String listString = agent.getList().keySet().stream().map(key -> key + "=" + agent.getList().get(key))
-                                .collect(Collectors.joining(", ", "{", "}"));
+            ACLMessage response = message.createReply();
+            String messageContent = message.getContent();
 
-                        ACLMessage response = message.createReply();
-                        response.setPerformative(ACLMessage.INFORM);
-                        response.setContent(listString);
-                        myAgent.send(response);
+            switch (message.getPerformative()){
+                // handling the request messages
+                case ACLMessage.REQUEST:
+                    if (agent.getFridgeState().getValue() != HomeAutomation.FridgeStates.BROKEN) {
+                        if (messageContent.equals(HomeAutomation.GET_LIST)) {
+                            String listString = agent.getList().keySet().stream().map(key -> key + "=" + agent.getList().get(key))
+                                    .collect(Collectors.joining(", ", "{", "}"));
+
+                            response.setPerformative(ACLMessage.INFORM);
+                            response.setContent(listString);
+                            myAgent.send(response);
+                        } else{
+                            response.setPerformative(ACLMessage.INFORM);
+                            response.setContent(HomeAutomation.UNKNOWN_COMMAND);
+                        }
+                    } else {
+                        response.setPerformative(ACLMessage.FAILURE);
+                        response.setContent("Unable to access the Fridge because is broken.");
                     }
+                    myAgent.send(response);
                     break;
             }
         } else{

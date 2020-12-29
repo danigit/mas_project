@@ -2,7 +2,6 @@ package behaviours;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -10,9 +9,11 @@ import interfaces.HomeAutomation;
 import utils.Util;
 
 public class CloseShutter extends Behaviour {
-    private AID[] shutters;
+    private AID[] agents;
     private int step, responses;
 
+    // constructors that allow to pass none, one or multiple agents
+    // if none agent is passed then I take all the agents that provide the door service
     public CloseShutter(){
         step = 0;
         responses = 0;
@@ -20,38 +21,31 @@ public class CloseShutter extends Behaviour {
 
     public CloseShutter(AID agent){
         this();
-        this.shutters = new AID[]{agent};
+        this.agents = new AID[]{agent};
     }
 
     public CloseShutter(AID[] agents){
         this();
-        this.shutters = agents;
+        this.agents = agents;
     }
 
     @Override
     public void action() {
-        AID[] result;
-
-        if (shutters.length > 0) {
-            result = shutters;
-        } else {
-            DFAgentDescription[] descriptions = Util.searchDFTemplate(myAgent, "shutter-service");
-            if (descriptions != null) {
-                result = Util.getAIDFromDescriptions(descriptions);
-            } else{
-                result = null;
-            }
-        }
+        AID[] result = Util.getAgentsList(myAgent, agents, "shutter-service");
 
         switch (step){
+            // sending the request
             case 0:
                 if (result != null && result.length > 0){
                     ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
                     message.setContent(HomeAutomation.DOWN_SHUTTER);
                     message.setConversationId("down-shutter");
+
                     for (AID agent : result) {
+                        Util.log("Asking the agent " + agent.getLocalName() + " to close the shutter");
                         message.addReceiver(agent);
                     }
+
                     myAgent.send(message);
                     responses = result.length;
                     step++;
@@ -60,8 +54,10 @@ public class CloseShutter extends Behaviour {
                     step = 2;
                 }
                 break;
+            // getting the response
             case 1:
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("down-shutter"));
+
                 if (response != null) {
                     Util.log("The agent " + response.getSender().getLocalName() + " has informed the Controller that "+
                             "the shutter in down");
@@ -76,6 +72,7 @@ public class CloseShutter extends Behaviour {
                     block();
                 }
                 break;
+            default: step = 2;
         }
     }
 

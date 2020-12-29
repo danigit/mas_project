@@ -4,8 +4,8 @@ import behaviours.HandleShutterRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Shutter;
 import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
+import jade.util.Logger;
 import utils.Responder;
 import utils.State;
 import utils.StateObserver;
@@ -19,6 +19,8 @@ import java.util.Set;
  * event could happen at a precise hour or may be triggered by some other agent
  */
 public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
+
+    public static String NAME = "ShutterAgent";
 
     private Set subscriptions = new HashSet();
     private State<ShutterStates> shutterState = new State<>(ShutterStates.DOWN);
@@ -36,37 +38,21 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
     @Override
     protected void setup() {
         super.setup();
+        Util.logger = Logger.getMyLogger(getLocalName());
+        Util.log("ShutterAgent has started...");
 
-        System.out.println("ShutterAgent starting...");
-
+        // registering services to the yellow pages
         String[] serviceTypes = {"control-service", "shutter-service"};
         String[] serviceNames = {"HA-control-service", "HA-shutter-service"};
-
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
-            @Override
-            public boolean register(SubscriptionResponder.Subscription subscription) {
-                subscriptions.add(subscription);
-                notify(subscription);
-                return true;
-            }
+        // getting the subscription manager
+        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
 
-            @Override
-            public boolean deregister(SubscriptionResponder.Subscription subscription) {
-                subscriptions.remove(subscription);
-                return false;
-            }
-
-            public void notify(SubscriptionResponder.Subscription subscription) {
-                ACLMessage notification = subscription.getMessage().createReply();
-                notification.setPerformative(ACLMessage.AGREE);
-                notification.setContent(AGREE);
-                subscription.notify(notification);
-            }
-        };//Util.createSubscriptionManager(subscriptions);
-
+        // creating the responder
         Responder shutterBehaviour = new Responder(this, responderTemplate, subscriptionManager);
+
+        // registering for state changes
         StateObserver<ShutterStates, Responder> shutterStatesObserver = new StateObserver<>(shutterBehaviour);
         shutterState.addObserver(shutterStatesObserver);
 

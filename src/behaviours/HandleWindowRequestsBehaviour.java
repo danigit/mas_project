@@ -6,29 +6,39 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class HandleWindowRequestsBehaviour extends CyclicBehaviour {
-    private final WindowAgent windowAgent;
+    private final WindowAgent agent;
 
     public HandleWindowRequestsBehaviour(WindowAgent agent){
-        this.windowAgent = agent;
+        this.agent = agent;
     }
 
     @Override
     public void action() {
         ACLMessage message = myAgent.receive();
         if (message != null){
+            ACLMessage response = message.createReply();
+            String messageContent = message.getContent();
+
             switch (message.getPerformative()){
                 case ACLMessage.REQUEST:
-                    ACLMessage response = message.createReply();
-                    if (message.getContent().equals(HomeAutomation.START_SUNFILTER)){
-                        windowAgent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_ON);
-                        response.setPerformative(ACLMessage.INFORM);
-                        response.setContent(windowAgent.getWindowState().getValue().toString());
-                    } else if (message.getContent().equals(HomeAutomation.STOP_SUNFILTER)){
-                        windowAgent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_OFF);
-                        response.setPerformative(ACLMessage.INFORM);
-                        response.setContent(windowAgent.getWindowState().getValue().toString());
+                    if (agent.getWindowState().getValue() != HomeAutomation.WindowStates.BROKEN) {
+                        if (messageContent.equals(HomeAutomation.START_SUNFILTER)) {
+                            response.setPerformative(ACLMessage.INFORM);
+                            agent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_ON);
+                            response.setContent(agent.getWindowState().getValue().toString());
+                        } else if (messageContent.equals(HomeAutomation.STOP_SUNFILTER)) {
+                            response.setPerformative(ACLMessage.INFORM);
+                            agent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_OFF);
+                            response.setContent(agent.getWindowState().getValue().toString());
+                        } else {
+                            response.setPerformative(ACLMessage.INFORM);
+                            response.setContent(HomeAutomation.UNKNOWN_COMMAND);
+                        }
+                    } else {
+                        response.setPerformative(ACLMessage.FAILURE);
                     }
                     myAgent.send(response);
+                    break;
             }
         } else {
             block();

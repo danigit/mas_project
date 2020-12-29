@@ -69,6 +69,43 @@ public class Util implements HomeAutomation {
         return null;
     }
 
+    public static SubscriptionResponder.SubscriptionManager createSubscriptionManager(Set subscriptions){
+        return new SubscriptionResponder.SubscriptionManager() {
+            @Override
+            public boolean register(SubscriptionResponder.Subscription subscription) {
+                subscriptions.add(subscription);
+                notify(subscription);
+                return true;
+            }
+
+            @Override
+            public boolean deregister(SubscriptionResponder.Subscription subscription) {
+                subscriptions.remove(subscription);
+                return false;
+            }
+
+            public void notify(SubscriptionResponder.Subscription subscription) {
+                ACLMessage notification = subscription.getMessage().createReply();
+                notification.setPerformative(ACLMessage.AGREE);
+                notification.setContent(AGREE);
+                subscription.notify(notification);
+            }
+        };
+    }
+
+    public static AID[] getAgentsList(Agent agent,  AID[] agents, String service){
+        if (agents.length > 0) {
+            return agents;
+        } else {
+            DFAgentDescription[] descriptions = searchDFTemplate(agent, service);
+            if (descriptions != null) {
+                return getAIDFromDescriptions(descriptions);
+            } else{
+                return null;
+            }
+        }
+    }
+
     public static ACLMessage subscribeToService(Agent agent, AID defaultDF, String serviceType){
         DFAgentDescription agentDescription = new DFAgentDescription();
         ServiceDescription serviceDescription = new ServiceDescription();

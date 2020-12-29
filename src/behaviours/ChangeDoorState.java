@@ -2,7 +2,6 @@ package behaviours;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -10,45 +9,36 @@ import interfaces.HomeAutomation;
 import utils.Util;
 
 public class ChangeDoorState extends Behaviour {
-    AID[] doors;
+    AID[] agents;
     HomeAutomation.DoorStates doorStatus;
     int step, responses;
 
+    // constructors that allow to pass none, one or multiple agents
+    // if none agent is passed then I take all the agents that provide the door service
     public ChangeDoorState(){
         step = 0;
         responses = 0;
     }
 
     public ChangeDoorState(AID agent, HomeAutomation.DoorStates doorStatus){
-        this.doors = new AID[]{agent};
+        this();
+        this.agents = new AID[]{agent};
         this.doorStatus = doorStatus;
-        step = 0;
-        responses = 0;
     }
 
     public ChangeDoorState(AID[] agents, HomeAutomation.DoorStates doorStatus){
-        this.doors = agents;
+        this();
+        this.agents = agents;
         this.doorStatus = doorStatus;
-        step = 0;
-        responses = 0;
     }
 
     @Override
     public void action() {
-        AID[] result;
-
-        if (doors.length > 0) {
-            result = doors;
-        } else {
-            DFAgentDescription[] descriptions = Util.searchDFTemplate(myAgent, "door-service");
-            if (descriptions != null) {
-                result = Util.getAIDFromDescriptions(descriptions);
-            } else{
-                result = null;
-            }
-        }
+        // getting the agents that have to change their state
+        AID[] result = Util.getAgentsList(myAgent, agents, "door-service");
 
         switch (step) {
+            // making the request
             case 0:
                 if (result != null && result.length > 0){
                     ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
@@ -58,7 +48,7 @@ public class ChangeDoorState extends Behaviour {
 
                     for (AID agent : result){
                         message.addReceiver(agent);
-                        Util.log("Asking to the agent " + agent.getLocalName() + " to change his state in: "+
+                        Util.log(myAgent.getLocalName() + " asking the agent " + agent.getLocalName() + " to change his state in: "+
                                 doorStatus.toString());
                     }
 
@@ -70,6 +60,7 @@ public class ChangeDoorState extends Behaviour {
                     step = 2;
                 }
                 break;
+            // getting the answer
             case 1:
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("change-door-state"));
 
@@ -93,6 +84,8 @@ public class ChangeDoorState extends Behaviour {
                     block();
                 }
                 break;
+            // finishing the behaviour
+            default: step = 2;
         }
     }
 

@@ -5,7 +5,6 @@ import behaviours.HandleFridgeRequestsBehaviour;
 import interfaces.Fridge;
 import interfaces.HomeAutomation;
 import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -24,7 +23,7 @@ import java.util.Set;
  */
 public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
 
-    private static final String NAME = "FridgeAgent";
+    public static final String NAME = "FridgeAgent";
 
     private Set subscriptions = new HashSet();
     private State<FridgeStates> fridgeState = new State<>(FridgeStates.RUNNING);
@@ -37,6 +36,12 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
     public Map<String, String> getList(){
         return this.list;
     }
+    public State<FridgeStates> getFridgeState(){
+        return this.fridgeState;
+    }
+    public void setFridgeState(FridgeStates fridgeState){
+        this.fridgeState.setValue(fridgeState);
+    }
 
     @Override
     protected void setup() {
@@ -48,35 +53,18 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
         list.put("eggs", "5");
         list.put("tomatoes", "1kg");
 
-        // I can register multiple services at once
+        // registering services to yellow pages
         String[] serviceTypes = {"control-service", "fridge-service"};
         String[] serviceNames = {"HA-Fridge-control-service", "HA-fridge-service"};
-
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
-            @Override
-            public boolean register(SubscriptionResponder.Subscription subscription) {
-                subscriptions.add(subscription);
-                notify(subscription);
-                return true;
-            }
+        // creating the subscription manager
+        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
 
-            @Override
-            public boolean deregister(SubscriptionResponder.Subscription subscription) {
-                subscriptions.remove(subscription);
-                return false;
-            }
-
-            public void notify(SubscriptionResponder.Subscription subscription) {
-                ACLMessage notification = subscription.getMessage().createReply();
-                notification.setPerformative(ACLMessage.AGREE);
-                notification.setContent(AGREE);
-                subscription.notify(notification);
-            }
-        };
-
+        // creating the responder
         Responder fridgeBehaviour = new Responder(this, responderTemplate, subscriptionManager);
+
+        // registering for state changes
         StateObserver<FridgeStates, Responder> fridgeStatesObserver = new StateObserver<>(fridgeBehaviour);
         fridgeState.addObserver(fridgeStatesObserver);
 

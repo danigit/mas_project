@@ -10,7 +10,7 @@ public class HeatAgent extends Agent implements HomeAutomation {
 
     public static String NAME = "HeatAgent";
 
-    private HeatStates heatState = HeatStates.STOP;
+    private HeatStates heatState = HeatStates.SHUT_DOWN;
     private double heatValue = 26.0;
 
     public void setHeatTemperature(double temperature){
@@ -32,11 +32,10 @@ public class HeatAgent extends Agent implements HomeAutomation {
 
         Util.logger = Logger.getMyLogger(getLocalName());
         Util.log("HeatAgent has started...");
-        Util.logger.log(Logger.INFO, "HeatAgent has started...");
 
+        // registering services to yellow pages
         String[] serviceTypes = {"heat-service"};
         String[] serviceNames = {"HA-heat-service"};
-
         Util.registerService(this,serviceTypes, serviceNames);
 
         // adding behaviour to the window

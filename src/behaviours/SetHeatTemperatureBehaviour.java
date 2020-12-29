@@ -3,64 +3,51 @@ package behaviours;
 import interfaces.HomeAutomation;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import utils.Util;
 
 public class SetHeatTemperatureBehaviour extends Behaviour {
-    private AID[] heats;
+    private AID[] agents;
     private int step, responses;
     private double temperature;
 
-    public SetHeatTemperatureBehaviour(){
+    // constructors that allow to pass none, one or multiple agents
+    // if none agent is passed then I take all the agents that provide the door service
+    public SetHeatTemperatureBehaviour(double temperature){
         step = 0;
         responses = 0;
+        this.temperature = temperature;
     }
     public SetHeatTemperatureBehaviour(AID agent, double temperature) {
-        this.heats = new AID[]{agent};
-        this.temperature = temperature;
-        step = 0;
-        responses = 0;
+        this(temperature);
+        this.agents = new AID[]{agent};
     }
 
     public SetHeatTemperatureBehaviour(AID[] agents, double temperature){
-        this.heats = agents;
-        this.temperature = temperature;
-        step = 0;
-        responses = 0;
+        this(temperature);
+        this.agents = agents;
     }
 
     @Override
     public void action() {
-        AID[] result;
-
-        if (heats.length > 0) {
-            result = heats;
-        } else {
-            DFAgentDescription[] descriptions = Util.searchDFTemplate(myAgent, "door-service");
-            if (descriptions != null) {
-                result = Util.getAIDFromDescriptions(descriptions);
-            } else{
-                result = null;
-            }
-        }
+        AID[] result = Util.getAgentsList(myAgent, agents, "door-service");
 
         switch (step) {
             case 0:
                 if (result != null && result.length > 0) {
-                    ACLMessage intentionMessage = new ACLMessage(ACLMessage.REQUEST);
-                    intentionMessage.setContent(HomeAutomation.HeatStates.SET_TEMPERATURE.toString());
-                    intentionMessage.addUserDefinedParameter("temp", String.valueOf(this.temperature));
-                    intentionMessage.setConversationId("temp-set");
+                    ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
+                    message.setContent(HomeAutomation.SET_TEMPERATURE);
+                    message.addUserDefinedParameter("temp", String.valueOf(this.temperature));
+                    message.setConversationId("temp-set");
 
                     for (AID receiver : result) {
-                        intentionMessage.addReceiver(receiver);
+                        message.addReceiver(receiver);
                         Util.log("Asking to agent " + receiver.getLocalName() + " to set the following temperature: " +
                                 this.temperature);
                     }
 
-                    myAgent.send(intentionMessage);
+                    myAgent.send(message);
                     responses = result.length;
                     step++;
                 }else{
@@ -85,6 +72,7 @@ public class SetHeatTemperatureBehaviour extends Behaviour {
                     block();
                 }
                 break;
+            default: step = 2;
         }
     }
 

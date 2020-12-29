@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Vector;
 
 import interfaces.*;
-import sun.util.resources.cldr.ig.CurrencyNames_ig;
 import utils.Util;
 
 /**
@@ -48,11 +47,11 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
 
         // adding behaviours to the agent
 
-        // this is the behaviour that subscribes to the DF for the 'control-service'
+        // this is the behaviour that subscribes to the DF for the 'control-service' notifications
         addBehaviour(new DFSubscriptionBehaviour(this, dfSubscriptionMessage));
 
         // this is the behaviour that handles the incoming messages from the agents
-//        addBehaviour(new HandleRequests());
+        addBehaviour(new HandleRequests());
     }
 
     /**
@@ -69,6 +68,7 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
             try {
                 ACLMessage subscriptionMessage = new ACLMessage(ACLMessage.SUBSCRIBE);
                 DFAgentDescription[] result = DFService.decodeNotification(inform.getContent());
+
                 if (result.length > 0){
                     List<AID> controlAgents = new LinkedList<>();
                     for (DFAgentDescription dfd : result) {
@@ -78,15 +78,11 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
                         while (iterator.hasNext()) {
                             ServiceDescription sd = (ServiceDescription) iterator.next();
                             if (sd.getType().equals("control-service")) {
-                                Util.log("Founded control service from agent: " + provided.getLocalName());
                                 controlAgents.add(provided);
                             }
                         }
                     }
-                    AID[] controlArray = new AID[controlAgents.size()];
-                    controlAgents.toArray(controlArray);
-                    Util.log("Asking for subscription to: " + result.length);
-                    addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, controlArray));
+                    addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, controlAgents));
                 } else{
                     Util.log("No agent for the subscription was found");
                 }
@@ -100,28 +96,27 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     /**
      * Class that makes a subscription agents that provide a given service
      */
-    private class SubscriptionController extends SubscriptionInitiator{
-        private AID[] serviceAgents;
-        private ACLMessage subscriptionMessage;
+    private static class SubscriptionController extends SubscriptionInitiator{
+        private final List<AID> serviceAgents;
+        private Vector<ACLMessage> subscriptions = new Vector<>();
 
-        public SubscriptionController(Agent agent, ACLMessage message, AID[] serviceAgents) {
+        public SubscriptionController(Agent agent, ACLMessage message, List<AID> serviceAgents) {
             super(agent, message);
             this.serviceAgents = serviceAgents;
-            this.subscriptionMessage = message;
         }
 
         @Override
         protected Vector prepareSubscriptions(ACLMessage subscription) {
-            Vector<ACLMessage> subscriptions = new Vector<>();
             subscription.setProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE);
 
-            if (serviceAgents != null && serviceAgents.length > 0) {
+            // adding receivers to the subscription
+            if (serviceAgents != null && serviceAgents.size() > 0) {
                 for (AID serviceAgent : serviceAgents) {
                     subscription.addReceiver(serviceAgent);
                 }
             }
 
-            // subscribing for broken status
+            // subscribing for broken service
             subscription.setContent(BROKEN);
             subscriptions.addElement(subscription);
 
@@ -186,7 +181,6 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     public void changeDoorState(AID agent, DoorStates newStatus) {
         this.addBehaviour(new ChangeDoorState(agent, newStatus));
     }
-
     public void startHeat(AID agent){ this.addBehaviour(new StartHeatBehaviour(agent));}
     public void startSunFilter(AID agent){ this.addBehaviour(new StartSunFilter(agent));}
     public void stopHeat(AID agent){ this.addBehaviour(new StopHeatBehaviour(agent));}

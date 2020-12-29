@@ -4,8 +4,8 @@ import behaviours.HandleWindowRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Window;
 import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionResponder;
+import jade.util.Logger;
 import utils.Responder;
 import utils.State;
 import utils.StateObserver;
@@ -37,38 +37,21 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
     @Override
     protected void setup() {
         super.setup();
+        Util.logger = Logger.getMyLogger(getLocalName());
+        Util.log("WindowAgent has started...");
 
-        System.out.println("WindowAgent started...");
-
-        // I can register multiple services at once
+        // registering services to the yellow pages
         String[] serviceTypes = {"control-service", "window-service"};
         String[] serviceNames = {"HA-Window-control-service", "HA-window-service"};
-
         Util.registerService(this, serviceTypes, serviceNames);
 
-        SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
-            @Override
-            public boolean register(SubscriptionResponder.Subscription subscription) {
-                subscriptions.add(subscription);
-                notify(subscription);
-                return true;
-            }
+        // getting the subscription manager
+        SubscriptionResponder.SubscriptionManager subscriptionManager = Util.createSubscriptionManager(subscriptions);
 
-            @Override
-            public boolean deregister(SubscriptionResponder.Subscription subscription) {
-                subscriptions.remove(subscription);
-                return false;
-            }
-
-            public void notify(SubscriptionResponder.Subscription subscription) {
-                ACLMessage notification = subscription.getMessage().createReply();
-                notification.setPerformative(ACLMessage.AGREE);
-                notification.setContent(AGREE);
-                subscription.notify(notification);
-            }
-        };//Util.createSubscriptionManager(subscriptions);
-
+        // creating the responder
         Responder windowBehaviour = new Responder(this, responderTemplate, subscriptionManager);
+
+        // registering for state changes
         StateObserver<WindowStates, Responder> windowStateObserver = new StateObserver<>(windowBehaviour);
         windowState.addObserver(windowStateObserver);
 

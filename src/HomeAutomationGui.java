@@ -8,8 +8,6 @@ import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -19,20 +17,28 @@ import interfaces.*;
 public class HomeAutomationGui extends JFrame{
     private JFrame frame;
     private JPanel mainPannel;
-    private JLabel titleLabel;
+
     private JPanel userPannel;
+    private JLabel titleLabel;
     private JLabel userImageLabel;
+    private JLabel doorIcon;
+    private JLabel fridgeIcon;
+    private JLabel windowIcon;
+    private JLabel shutterIcon;
+
     private JRadioButton lockDoorRadioButton;
     private JRadioButton unlockDoorRadioButton;
-    private JButton getDoorStateButton;
+
     private JCheckBox brokeDoorCheckBox;
-    private JTextArea outputStream;
-    private JLabel doorIcon;
     private JCheckBox brokeFridgeCheckBox;
-    private JButton getTemperatureButton;
-    private JButton setTemperatureButton;
     private JCheckBox brokeWindowCheckBox;
     private JCheckBox brokeShutterCheckBox;
+
+    private JTextArea outputStream;
+
+    private JButton getDoorStateButton;
+    private JButton getTemperatureButton;
+    private JButton setTemperatureButton;
     private JButton openShutterButton;
     private JButton closeShutterButton;
     private JButton unlockDoorButton;
@@ -42,10 +48,9 @@ public class HomeAutomationGui extends JFrame{
     private JButton deactivateSunfilterButton;
     private JButton activateSunfilterButton;
     private JButton getListButton;
-    private JLabel fridgeIcon;
     private JButton sendBuyListButton;
-    private JLabel windowIcon;
-    private JLabel shutterIcon;
+    private JLabel heatIcon;
+
     private ButtonGroup doorGroup;
 
     Runtime runtime;
@@ -70,42 +75,33 @@ public class HomeAutomationGui extends JFrame{
     }
 
     private void handleDoor(){
-        lockDoorButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.changeDoorState(new AID(mainDoor.getName()), HomeAutomation.DoorStates.LOCKED);
-                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        lockDoorButton.addActionListener(e -> {
+            try {
+                controllerAgent.changeDoorState(new AID(mainDoor.getName()), HomeAutomation.DoorStates.LOCKED);
+                doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        unlockDoorButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.changeDoorState(new AID(mainDoor.getName()), HomeAutomation.DoorStates.UNLOCKED);
-                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/unlocked_door.png")));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        unlockDoorButton.addActionListener(e -> {
+            try {
+                controllerAgent.changeDoorState(new AID(mainDoor.getName()), HomeAutomation.DoorStates.UNLOCKED);
+                doorIcon.setIcon(new ImageIcon(getClass().getResource("img/unlocked_door.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        brokeDoorCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                if (checkBox.isSelected()){
-                    mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.BROKEN);
-                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_door.png")));
-                }
-//                else {
-//                    mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.NOT_BROKEN);
-//                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
-//                }
+        brokeDoorCheckBox.addActionListener(e ->  {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()){
+                mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.BROKEN);
+                doorIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_door.png")));
+            }
+            else {
+                mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.LOCKED);
+                doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
             }
         });
 
@@ -127,18 +123,16 @@ public class HomeAutomationGui extends JFrame{
                 staleProxyException.printStackTrace();
             }
         });
-        brokeFridgeCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                if (checkBox.isSelected()){
-                    fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.BROKEN);
-                    fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_fridge.png")));
-                }
-//                else{
-//                    fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.RUNNING);
-//                    fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/ok_fridge.png")));
-//                }
+
+        brokeFridgeCheckBox.addActionListener(e ->  {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()){
+                fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.BROKEN);
+                fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_fridge.png")));
+            }
+            else{
+                fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.RUNNING);
+                fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/ok_fridge.png")));
             }
         });
 
@@ -149,6 +143,7 @@ public class HomeAutomationGui extends JFrame{
         startHeatButton.addActionListener(e -> {
             try {
                 controllerAgent.startHeat(new AID(heat.getName()));
+                heatIcon.setIcon(new ImageIcon(getClass().getResource("img/on_heat.png")));
             } catch (StaleProxyException staleProxyException) {
                 staleProxyException.printStackTrace();
             }
@@ -157,6 +152,7 @@ public class HomeAutomationGui extends JFrame{
         stopHeatButton.addActionListener(e -> {
             try {
                 controllerAgent.stopHeat(new AID(heat.getName()));
+                heatIcon.setIcon(new ImageIcon(getClass().getResource("img/off_heat.png")));
             } catch (StaleProxyException staleProxyException) {
                 staleProxyException.printStackTrace();
             }
@@ -181,86 +177,71 @@ public class HomeAutomationGui extends JFrame{
     }
 
     public void handleWindow() {
-        activateSunfilterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.startSunFilter(new AID(window.getName()));
-                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/open_window.png")));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        activateSunfilterButton.addActionListener(e ->  {
+            try {
+                controllerAgent.startSunFilter(new AID(window.getName()));
+                windowIcon.setIcon(new ImageIcon(getClass().getResource("img/open_window.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        deactivateSunfilterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.stopSunFilter(new AID(window.getName()));
-                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        deactivateSunfilterButton.addActionListener(e ->  {
+            try {
+                controllerAgent.stopSunFilter(new AID(window.getName()));
+                windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        brokeWindowCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                if (checkBox.isSelected()){
-                    windowAgent.changeWindowStatus(HomeAutomation.WindowStates.BROKEN);
-                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_window.png")));
-                }
-//                else{
-//                    windowAgent.changeWindowStatus(HomeAutomation.WindowStates.CLOSED);
-//                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
-//                }
+        brokeWindowCheckBox.addActionListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()){
+                windowAgent.changeWindowStatus(HomeAutomation.WindowStates.BROKEN);
+                windowIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_window.png")));
+            }
+            else{
+                windowAgent.changeWindowStatus(HomeAutomation.WindowStates.CLOSED);
+                windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
             }
         });
     }
 
     public void handleShutter(){
-        openShutterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.openShutter(new AID(shutter.getName()));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        openShutterButton.addActionListener(e -> {
+            try {
+                controllerAgent.openShutter(new AID(shutter.getName()));
+                shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/opened_shutter.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        closeShutterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    controllerAgent.closeShutter(new AID(shutter.getName()));
-                } catch (StaleProxyException staleProxyException) {
-                    staleProxyException.printStackTrace();
-                }
+        closeShutterButton.addActionListener(e -> {
+            try {
+                controllerAgent.closeShutter(new AID(shutter.getName()));
+                shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
+            } catch (StaleProxyException staleProxyException) {
+                staleProxyException.printStackTrace();
             }
         });
 
-        brokeShutterCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                if (checkBox.isSelected()){
-                    shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.BROKEN);
-                    shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_shutter.png")));
-                }
-//                else{
-//                    shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.UP);
-//                    shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
-//                }
+        brokeShutterCheckBox.addActionListener(e ->  {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()){
+                shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.BROKEN);
+                shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_shutter.png")));
+            }
+            else{
+                shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.UP);
+                shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
             }
         });
     }
     public static void main(String[] args){ ;
         HomeAutomationGui homeAutomationGui = new HomeAutomationGui();
+
         homeAutomationGui.createRadioGroup();
         homeAutomationGui.handleDoor();
         homeAutomationGui.handleFridge();
@@ -268,13 +249,7 @@ public class HomeAutomationGui extends JFrame{
         homeAutomationGui.handleWindow();
         homeAutomationGui.handleShutter();
 
-        homeAutomationGui.frame = new JFrame("HomeAutomation");
-        homeAutomationGui.frame.setContentPane(homeAutomationGui.mainPannel);
-        homeAutomationGui.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        homeAutomationGui.frame.setLocationRelativeTo(null);
-        homeAutomationGui.frame.pack();
-        homeAutomationGui.frame.setVisible(true);
-
+        // redirecting the output to the TextArea
         PrintStream printStream = new PrintStream(new CustomOutputStream(homeAutomationGui.outputStream));
         System.setOut(printStream);
         System.setErr(printStream);
@@ -285,6 +260,7 @@ public class HomeAutomationGui extends JFrame{
         homeAutomationGui.mainContainer =  homeAutomationGui.runtime.createMainContainer(homeAutomationGui.configuration);
 
         try {
+            // creating the agents
             homeAutomationGui.controller = homeAutomationGui.mainContainer.createNewAgent("ControllerAgent", ControllerAgent.class.getName(), null);
             homeAutomationGui.mainDoor = homeAutomationGui.mainContainer.createNewAgent("MainDoorAgent", MainDoorAgent.class.getName(), null);
             homeAutomationGui.heat = homeAutomationGui.mainContainer.createNewAgent("HeatAgent", HeatAgent.class.getName(), null);
@@ -292,7 +268,7 @@ public class HomeAutomationGui extends JFrame{
             homeAutomationGui.shutter = homeAutomationGui.mainContainer.createNewAgent("ShutterAgent", ShutterAgent.class.getName(), null);
             homeAutomationGui.window = homeAutomationGui.mainContainer.createNewAgent("WindowAgent", WindowAgent.class.getName(), null);
 
-
+            // starting the agents
             homeAutomationGui.controller.start();
             homeAutomationGui.mainDoor.start();
             homeAutomationGui.heat.start();
@@ -300,6 +276,7 @@ public class HomeAutomationGui extends JFrame{
             homeAutomationGui.shutter.start();
             homeAutomationGui.window.start();
 
+            // crating the objects to interact with the agents
             homeAutomationGui.controllerAgent = homeAutomationGui.controller.getO2AInterface(Controller.class);
             homeAutomationGui.mainDoorAgent = homeAutomationGui.mainDoor.getO2AInterface(MainDoor.class);
             homeAutomationGui.fridgeAgent = homeAutomationGui.fridge.getO2AInterface(Fridge.class);
@@ -308,10 +285,18 @@ public class HomeAutomationGui extends JFrame{
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
+
+        // creating the GUI
+        homeAutomationGui.frame = new JFrame("HomeAutomation");
+        homeAutomationGui.frame.setContentPane(homeAutomationGui.mainPannel);
+        homeAutomationGui.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        homeAutomationGui.frame.setLocationRelativeTo(null);
+        homeAutomationGui.frame.pack();
+        homeAutomationGui.frame.setVisible(true);
     }
 
     /**
-     * This class extends from OutputStream to redirect output to a JTextArrea
+     * This class extends from OutputStream to redirect output to a JTextArea
      * @author www.codejava.net
      *
      */

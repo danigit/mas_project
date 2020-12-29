@@ -4,34 +4,40 @@ import agents.MainDoorAgent;
 import interfaces.HomeAutomation;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
-import sun.util.resources.cldr.mua.CurrencyNames_mua;
 
 public class HandleDoorRequestsBehaviour extends CyclicBehaviour {
-    private MainDoorAgent doorAgent;
+    private final MainDoorAgent agent;
 
     public HandleDoorRequestsBehaviour(MainDoorAgent agent){
-        this.doorAgent = agent;
+        this.agent = agent;
     }
 
     @Override
     public void action() {
         ACLMessage message = myAgent.receive();
+
         if (message != null){
+            ACLMessage response = message.createReply();
+            String messageContent = message.getContent();
+
             switch (message.getPerformative()){
+                // handling the request messages
                 case ACLMessage.REQUEST:
-                    ACLMessage response = message.createReply();
-                    if (message.getContent().equals(HomeAutomation.STATE)) {
-                        response.setPerformative(ACLMessage.INFORM);
-                        response.setConversationId("door-status");
-                        response.setContent(doorAgent.getDoorState().getValue().toString());
-                    } else if(message.getContent().equals(HomeAutomation.CHANGE_STATE)){
-                        if (doorAgent.getDoorState().getValue() == HomeAutomation.DoorStates.BROKEN){
-                            response.setPerformative(ACLMessage.FAILURE);
-                        } else {
-                            doorAgent.setDoorState(HomeAutomation.DoorStates.valueOf(message.getUserDefinedParameter("new_state")));
+                    if (agent.getDoorState().getValue() != HomeAutomation.DoorStates.BROKEN) {
+                        if (messageContent.equals(HomeAutomation.GET_STATE)) {
                             response.setPerformative(ACLMessage.INFORM);
+                            response.setContent(agent.getDoorState().getValue().toString());
+                        } else if (messageContent.equals(HomeAutomation.CHANGE_STATE)) {
+                            response.setPerformative(ACLMessage.INFORM);
+                            agent.setDoorState(HomeAutomation.DoorStates.valueOf(message.getUserDefinedParameter("new_state")));
+                            response.setContent(agent.getDoorState().getValue().toString());
+                        } else {
+                            response.setPerformative(ACLMessage.INFORM);
+                            response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
-                        response.setContent(doorAgent.getDoorState().getValue().toString());
+                    } else {
+                        response.setPerformative(ACLMessage.FAILURE);
+                        response.setContent("Unable to access the Door because is broken.");
                     }
                     myAgent.send(response);
                     break;
