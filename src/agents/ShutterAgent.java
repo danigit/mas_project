@@ -4,6 +4,8 @@ import behaviours.HandleShutterRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Shutter;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -23,7 +25,7 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
     public static String NAME = "ShutterAgent";
 
     private Set subscriptions = new HashSet();
-    private State<ShutterStates> shutterState = new State<>(ShutterStates.DOWN);
+    private final State<ShutterStates> shutterState = new State<>(ShutterStates.DOWN);
 
     public void setShutterState(ShutterStates shutterState){
         this.shutterState.setValue(shutterState);
@@ -59,6 +61,15 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
         // adding behaviour to the agent
         addBehaviour(shutterBehaviour);
         addBehaviour(new HandleShutterRequestsBehaviour(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException fipaException) {
+            fipaException.printStackTrace();
+        }
     }
 
     public void changeShutterStatus(ShutterStates shutterState){

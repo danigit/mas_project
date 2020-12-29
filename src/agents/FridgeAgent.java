@@ -5,6 +5,8 @@ import behaviours.HandleFridgeRequestsBehaviour;
 import interfaces.Fridge;
 import interfaces.HomeAutomation;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -26,7 +28,7 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
     public static final String NAME = "FridgeAgent";
 
     private Set subscriptions = new HashSet();
-    private State<FridgeStates> fridgeState = new State<>(FridgeStates.RUNNING);
+    private final State<FridgeStates> fridgeState = new State<>(FridgeStates.RUNNING);
     private Map<String, String> list = new HashMap<>();
 
     public FridgeAgent(){
@@ -71,6 +73,15 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
         // adding behaviours to the agent
         addBehaviour(fridgeBehaviour);
         addBehaviour(new HandleFridgeRequestsBehaviour(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException fipaException) {
+            fipaException.printStackTrace();
+        }
     }
 
     public void changeFridgeState(FridgeStates fridgeState){

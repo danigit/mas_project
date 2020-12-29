@@ -3,6 +3,8 @@ package agents;
 import behaviours.HandleHeatRequestsBehaviour;
 import interfaces.HomeAutomation;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.util.Logger;
 import utils.Util;
 
@@ -40,6 +42,15 @@ public class HeatAgent extends Agent implements HomeAutomation {
 
         // adding behaviour to the window
         addBehaviour(new HandleHeatRequestsBehaviour(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException fipaException) {
+            fipaException.printStackTrace();
+        }
     }
 
     public void changeHeatState(HeatStates heatState){

@@ -188,4 +188,3 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     public void openShutter(AID agent){ this.addBehaviour(new OpenShutter(agent));}
     public void closeShutter(AID agent){ this.addBehaviour(new CloseShutter(agent));}
 }
-// TODO deregister the agents in the takedown method

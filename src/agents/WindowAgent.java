@@ -4,6 +4,8 @@ import behaviours.HandleWindowRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.Window;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -20,8 +22,10 @@ import java.util.Set;
  */
 public class WindowAgent extends Agent implements HomeAutomation, Window {
 
+    public static final String NAME = "WindowAgent";
+
     private Set subscriptions = new HashSet();
-    private State<WindowStates> windowState = new State<>(WindowStates.CLOSED);
+    private final State<WindowStates> windowState = new State<>(WindowStates.CLOSED);
 
     public void setWindowState(WindowStates windowState){
         this.windowState.setValue(windowState);
@@ -58,6 +62,15 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
         // adding behaviour to the window
         addBehaviour(windowBehaviour);
         addBehaviour(new HandleWindowRequestsBehaviour(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException fipaException) {
+            fipaException.printStackTrace();
+        }
     }
 
     public void changeWindowStatus(WindowStates windowState) {

@@ -4,6 +4,8 @@ import behaviours.HandleDoorRequestsBehaviour;
 import interfaces.HomeAutomation;
 import interfaces.MainDoor;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.proto.SubscriptionResponder;
 import jade.util.Logger;
 import utils.Responder;
@@ -21,7 +23,7 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
     public static String NAME = "MainDoorAgent";
 
     private Set subscriptions = new HashSet();
-    private State<DoorStates> doorState = new State<>(DoorStates.LOCKED);
+    private final State<DoorStates> doorState = new State<>(DoorStates.LOCKED);
 
     public State<DoorStates> getDoorState(){
         return this.doorState;
@@ -58,6 +60,15 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
         // adding behaviour to the agent
         addBehaviour(doorBehaviour);
         addBehaviour(new HandleDoorRequestsBehaviour(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException fipaException) {
+            fipaException.printStackTrace();
+        }
     }
 
     public void changeDoorState(DoorStates doorState){
