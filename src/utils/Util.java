@@ -77,30 +77,6 @@ public class Util implements HomeAutomation {
         return DFService.createSubscriptionMessage(agent, defaultDF, agentDescription, null);
     }
 
-    public static SubscriptionResponder.SubscriptionManager createSubscriptionManager(Set subscriptions){
-        return new SubscriptionResponder.SubscriptionManager() {
-            @Override
-            public boolean register(SubscriptionResponder.Subscription subscription) {
-                subscriptions.add(subscription);
-                notify(subscription);
-                return true;
-            }
-
-            @Override
-            public boolean deregister(SubscriptionResponder.Subscription subscription) {
-                subscriptions.remove(subscription);
-                return false;
-            }
-
-            public void notify(SubscriptionResponder.Subscription subscription) {
-                ACLMessage notification = subscription.getMessage().createReply();
-                notification.setPerformative(ACLMessage.AGREE);
-                notification.setContent(AGREE);
-                subscription.notify(notification);
-            }
-        };
-    }
-
     public static AID[] getAIDFromDescriptions(DFAgentDescription[] descriptions){
         AID[] result = new AID[descriptions.length];
         Arrays.stream(descriptions).map(DFAgentDescription::getName).collect(Collectors.toList()).toArray(result);

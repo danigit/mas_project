@@ -101,10 +101,11 @@ public class HomeAutomationGui extends JFrame{
                 if (checkBox.isSelected()){
                     mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.BROKEN);
                     doorIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_door.png")));
-                } else {
-                    mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.NOT_BROKEN);
-                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
                 }
+//                else {
+//                    mainDoorAgent.changeDoorState(HomeAutomation.DoorStates.NOT_BROKEN);
+//                    doorIcon.setIcon(new ImageIcon(getClass().getResource("img/locked_door.png")));
+//                }
             }
         });
 
@@ -133,10 +134,11 @@ public class HomeAutomationGui extends JFrame{
                 if (checkBox.isSelected()){
                     fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.BROKEN);
                     fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_fridge.png")));
-                } else{
-                    fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.RUNNING);
-                    fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/ok_fridge.png")));
                 }
+//                else{
+//                    fridgeAgent.changeFridgeState(HomeAutomation.FridgeStates.RUNNING);
+//                    fridgeIcon.setIcon(new ImageIcon(getClass().getResource("img/ok_fridge.png")));
+//                }
             }
         });
 
@@ -210,10 +212,11 @@ public class HomeAutomationGui extends JFrame{
                 if (checkBox.isSelected()){
                     windowAgent.changeWindowStatus(HomeAutomation.WindowStates.BROKEN);
                     windowIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_window.png")));
-                } else{
-                    windowAgent.changeWindowStatus(HomeAutomation.WindowStates.CLOSED);
-                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
                 }
+//                else{
+//                    windowAgent.changeWindowStatus(HomeAutomation.WindowStates.CLOSED);
+//                    windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
+//                }
             }
         });
     }
@@ -248,10 +251,11 @@ public class HomeAutomationGui extends JFrame{
                 if (checkBox.isSelected()){
                     shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.BROKEN);
                     shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_shutter.png")));
-                } else{
-                    shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.UP);
-                    shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
                 }
+//                else{
+//                    shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.UP);
+//                    shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
+//                }
             }
         });
     }

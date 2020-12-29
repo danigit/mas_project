@@ -42,12 +42,13 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
 
         // registering the services provided in the yellow pages
         String[] serviceTypes = {"control-service", "door-service"};
-        String[] serviceNames = {"HA-control-service", "HA-door-service"};
+        String[] serviceNames = {"HA-Door-control-service", "HA-door-service"};
         Util.registerService(this, serviceTypes, serviceNames);
 
         SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
             @Override
             public boolean register(SubscriptionResponder.Subscription subscription) {
+                Util.log("Registering the subscription " + subscription.getMessage().getSender());
                 subscriptions.add(subscription);
                 notify(subscription);
                 return true;
@@ -61,6 +62,7 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
 
             public void notify(SubscriptionResponder.Subscription subscription) {
                 ACLMessage notification = subscription.getMessage().createReply();
+                Util.log("Notifying the agetn " + subscription.getMessage().getSender());
                 notification.setPerformative(ACLMessage.AGREE);
                 notification.setContent(AGREE);
                 subscription.notify(notification);
@@ -73,7 +75,7 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
 
         // adding behaviour to the agent
         addBehaviour(doorBehaviour);
-        addBehaviour(new HandleDoorRequestsBehaviour(this));
+//        addBehaviour(new HandleDoorRequestsBehaviour(this));
     }
 
     public void changeDoorState(DoorStates doorState){

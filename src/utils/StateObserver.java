@@ -23,7 +23,7 @@ public class StateObserver<T, U> implements Observer, HomeAutomation {
         if (arg != null){
             state = (T) arg;
             if (state.toString().equals(BROKEN)){
-                Util.log("Sending broken to: ");
+                Util.log("Notifying the controller about broken");
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
                 inform.setContent(state.toString());
                 Method method = null;

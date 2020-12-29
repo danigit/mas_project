@@ -50,11 +50,10 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
 
         // I can register multiple services at once
         String[] serviceTypes = {"control-service", "fridge-service"};
-        String[] serviceNames = {"HA-control-service", "HA-fridge-service"};
+        String[] serviceNames = {"HA-Fridge-control-service", "HA-fridge-service"};
 
         Util.registerService(this, serviceTypes, serviceNames);
 
-        Util.log(String.valueOf(subscriptions.size()));
         SubscriptionResponder.SubscriptionManager subscriptionManager = new SubscriptionResponder.SubscriptionManager() {
             @Override
             public boolean register(SubscriptionResponder.Subscription subscription) {
@@ -76,7 +75,6 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
                 subscription.notify(notification);
             }
         };
-        Util.log("after size: " + String.valueOf(subscriptions.size()));
 
         Responder fridgeBehaviour = new Responder(this, responderTemplate, subscriptionManager);
         StateObserver<FridgeStates, Responder> fridgeStatesObserver = new StateObserver<>(fridgeBehaviour);

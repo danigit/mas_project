@@ -42,7 +42,7 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
 
         // I can register multiple services at once
         String[] serviceTypes = {"control-service", "window-service"};
-        String[] serviceNames = {"HA-control-service", "HA-window-service"};
+        String[] serviceNames = {"HA-Window-control-service", "HA-window-service"};
 
         Util.registerService(this, serviceTypes, serviceNames);
 

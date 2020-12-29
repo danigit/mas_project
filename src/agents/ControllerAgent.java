@@ -6,6 +6,7 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
@@ -13,9 +14,13 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.SubscriptionInitiator;
 import jade.util.Logger;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import interfaces.*;
+import sun.util.resources.cldr.ig.CurrencyNames_ig;
 import utils.Util;
 
 /**
@@ -47,14 +52,13 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
         addBehaviour(new DFSubscriptionBehaviour(this, dfSubscriptionMessage));
 
         // this is the behaviour that handles the incoming messages from the agents
-        addBehaviour(new HandleRequests());
+//        addBehaviour(new HandleRequests());
     }
 
     /**
      * Class that makes a subscription to the DFAgent for a given service
      */
     private class DFSubscriptionBehaviour extends SubscriptionInitiator{
-        ACLMessage subscriptionMessage = new ACLMessage(ACLMessage.SUBSCRIBE);
 
         public DFSubscriptionBehaviour(Agent agent, ACLMessage subscriptionMessage){
             super(agent, subscriptionMessage);
@@ -63,9 +67,26 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
         @Override
         protected void handleInform(ACLMessage inform) {
             try {
+                ACLMessage subscriptionMessage = new ACLMessage(ACLMessage.SUBSCRIBE);
                 DFAgentDescription[] result = DFService.decodeNotification(inform.getContent());
                 if (result.length > 0){
-                    addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, result));
+                    List<AID> controlAgents = new LinkedList<>();
+                    for (DFAgentDescription dfd : result) {
+                        AID provided = dfd.getName();
+
+                        Iterator iterator = dfd.getAllServices();
+                        while (iterator.hasNext()) {
+                            ServiceDescription sd = (ServiceDescription) iterator.next();
+                            if (sd.getType().equals("control-service")) {
+                                Util.log("Founded control service from agent: " + provided.getLocalName());
+                                controlAgents.add(provided);
+                            }
+                        }
+                    }
+                    AID[] controlArray = new AID[controlAgents.size()];
+                    controlAgents.toArray(controlArray);
+                    Util.log("Asking for subscription to: " + result.length);
+                    addBehaviour(new SubscriptionController(myAgent, subscriptionMessage, controlArray));
                 } else{
                     Util.log("No agent for the subscription was found");
                 }
@@ -79,56 +100,48 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     /**
      * Class that makes a subscription agents that provide a given service
      */
-    private static class SubscriptionController extends SubscriptionInitiator{
-        AID[] controllerAgents;
-        ACLMessage message;
-        DFAgentDescription[] serviceAgents;
-        Vector<ACLMessage> subscriptions = new Vector<>();
+    private class SubscriptionController extends SubscriptionInitiator{
+        private AID[] serviceAgents;
+        private ACLMessage subscriptionMessage;
 
-        public SubscriptionController(Agent agent, ACLMessage message, DFAgentDescription[] serviceAgents) {
+        public SubscriptionController(Agent agent, ACLMessage message, AID[] serviceAgents) {
             super(agent, message);
-            this.message = message;
             this.serviceAgents = serviceAgents;
+            this.subscriptionMessage = message;
         }
 
         @Override
         protected Vector prepareSubscriptions(ACLMessage subscription) {
+            Vector<ACLMessage> subscriptions = new Vector<>();
             subscription.setProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE);
 
             if (serviceAgents != null && serviceAgents.length > 0) {
-                controllerAgents = new AID[serviceAgents.length];
-                for (int i = 0; i < serviceAgents.length; i++) {
-                    controllerAgents[i] = serviceAgents[i].getName();
-                    subscription.addReceiver(serviceAgents[i].getName());
+                for (AID serviceAgent : serviceAgents) {
+                    subscription.addReceiver(serviceAgent);
                 }
             }
 
             // subscribing for broken status
             subscription.setContent(BROKEN);
             subscriptions.addElement(subscription);
+
             return subscriptions;
         }
 
         @Override
         protected void handleAgree(ACLMessage agree) {
-            Util.log( agree.getSender().getLocalName() + " has accepted the subscription request");
+            Util.log("Received subscription inform from " + agree.getSender().getLocalName()
+                    + " with the following content: '" + agree.getContent() + "'");
         }
 
         @Override
         protected void handleInform(ACLMessage inform) {
             // getting the subscription agree messages
-            if (inform.getPerformative() == ACLMessage.AGREE) {
-                Util.log("Received subscription inform from " + inform.getSender().getLocalName()
-                        + " with the following content: '" + inform.getContent() + "'");
-            }
-            // getting the messages triggered by the subscription
-            else if (inform.getPerformative() == ACLMessage.INFORM) {
-                Util.log("Agent " + inform.getSender().getLocalName() + " has informed the Controller with the following  " +
-                        "content: " + inform.getContent());
-                if (inform.getContent().equals(BROKEN)) {
-                    Util.log("Informing the User that " + inform.getSender().getLocalName() + " is in " +
-                            inform.getContent() + " state!");
-                }
+            Util.log("Agent " + inform.getSender().getLocalName() + " has informed the Controller with the following  " +
+                    "content: " + inform.getContent());
+            if (inform.getContent().equals(BROKEN)) {
+                Util.log("Informing the User that " + inform.getSender().getLocalName() + " is in " +
+                        inform.getContent() + " state!");
             }
         }
 
@@ -181,3 +194,4 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     public void openShutter(AID agent){ this.addBehaviour(new OpenShutter(agent));}
     public void closeShutter(AID agent){ this.addBehaviour(new CloseShutter(agent));}
 }
+// TODO deregister the agents in the takedown method
