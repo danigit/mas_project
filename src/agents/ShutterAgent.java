@@ -27,9 +27,6 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
     private Set subscriptions = new HashSet();
     private final State<ShutterStates> shutterState = new State<>(ShutterStates.DOWN);
 
-    public void setShutterState(ShutterStates shutterState){
-        this.shutterState.setValue(shutterState);
-    }
     public State<ShutterStates> getShutterState(){
         return this.shutterState;
     }
@@ -72,7 +69,7 @@ public class ShutterAgent extends Agent implements HomeAutomation, Shutter {
         }
     }
 
-    public void changeShutterStatus(ShutterStates shutterState){
+    public void changeShutterState(ShutterStates shutterState){
         this.shutterState.setValue(shutterState);
     }
 }

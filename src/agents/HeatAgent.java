@@ -12,6 +12,7 @@ public class HeatAgent extends Agent implements HomeAutomation {
 
     public static String NAME = "HeatAgent";
 
+    // the heat agent does not consider the BROKEN state for this implementation
     private HeatStates heatState = HeatStates.SHUT_DOWN;
     private double heatValue = 26.0;
 
@@ -20,9 +21,6 @@ public class HeatAgent extends Agent implements HomeAutomation {
     }
     public double getHeatTemperature(){
         return this.heatValue;
-    }
-    public void setHeatState(HeatStates heatState) {
-        this.heatState = heatState;
     }
     public HeatStates getHeatState(){
         return this.heatState;

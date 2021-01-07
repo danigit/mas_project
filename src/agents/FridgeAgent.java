@@ -38,12 +38,7 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
     public Map<String, String> getList(){
         return this.list;
     }
-    public State<FridgeStates> getFridgeState(){
-        return this.fridgeState;
-    }
-    public void setFridgeState(FridgeStates fridgeState){
-        this.fridgeState.setValue(fridgeState);
-    }
+    public State<FridgeStates> getFridgeState(){ return this.fridgeState; }
 
     @Override
     protected void setup() {
@@ -51,9 +46,9 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
         Util.logger = Logger.getMyLogger(getLocalName());
         Util.log("FridgeAgent has started...");
 
-        list.put("milk", "2l");
-        list.put("eggs", "5");
-        list.put("tomatoes", "1kg");
+        // a complete implementation should have a list for the things that are in the fridge
+        // and a list for the things that should be in the fridge
+        fillList();
 
         // registering services to yellow pages
         String[] serviceTypes = {"control-service", "fridge-service"};
@@ -87,7 +82,14 @@ public class FridgeAgent extends Agent implements HomeAutomation, Fridge {
     public void changeFridgeState(FridgeStates fridgeState){
         this.fridgeState.setValue(fridgeState);
     }
+
     public void buyList(){
         addBehaviour(new BuyListBehaviour(list));
+    }
+
+    private void fillList(){
+        list.put("milk", "2l");
+        list.put("eggs", "5");
+        list.put("tomatoes", "1kg");
     }
 }

@@ -18,6 +18,7 @@ public class BuyListBehaviour extends OneShotBehaviour {
 
     @Override
     public void action() {
+        // converting the list in a string format
         String listString = list.keySet().stream().map(key -> key + "=" + list.get(key))
                 .collect(Collectors.joining(", ", "{", "}"));
 

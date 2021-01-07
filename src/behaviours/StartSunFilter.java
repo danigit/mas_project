@@ -49,18 +49,30 @@ public class StartSunFilter extends Behaviour {
                     responses = result.length;
                     step++;
                 }else{
-                    Util.log("No 'fridge-service' found");
+                    Util.log("No 'window-service' found");
                     step = 2;
                 }
                 break;
             case 1:
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("start-sunfilter"));
-                if (response != null) {
-                    Util.log("The agent " + response.getSender().getLocalName() + " has informed the Controller that "+
-                            "the sun filter in on");
-                    Util.log("Informing the user that the agent " + response.getSender().getLocalName() + " that the "+
-                            "the sun filters are in state: " + response.getContent());
 
+                if (response != null) {
+                    switch (response.getPerformative()) {
+                        case ACLMessage.INFORM:
+                            Util.log("The agent " + response.getSender().getLocalName() + " has informed the Controller that " +
+                                    "the sun filter in on");
+                            Util.log("Informing the user that the agent " + response.getSender().getLocalName() + " that the " +
+                                    "the sun filters are in state: " + response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message "+
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken");
+                            break;
+                    }
+
+                    // controlling that all the agents have answered
                     responses--;
                     if (responses == 0) {
                         step++;

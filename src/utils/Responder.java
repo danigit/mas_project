@@ -11,6 +11,9 @@ import interfaces.HomeAutomation;
 
 import java.util.Vector;
 
+/**
+ * Class that handles the subscription requests
+ */
 public class Responder extends SubscriptionResponder {
     private final SubscriptionManager subscriptionManager;
 

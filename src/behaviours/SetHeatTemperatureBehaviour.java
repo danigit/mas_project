@@ -31,7 +31,7 @@ public class SetHeatTemperatureBehaviour extends Behaviour {
 
     @Override
     public void action() {
-        AID[] result = Util.getAgentsList(myAgent, agents, "door-service");
+        AID[] result = Util.getAgentsList(myAgent, agents, "heat-service");
 
         switch (step) {
             case 0:
@@ -59,12 +59,23 @@ public class SetHeatTemperatureBehaviour extends Behaviour {
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("temp-set"));
 
                 if (response != null){
-                    Util.log( "The agent " + response.getSender().getLocalName() + " has communicated to the Controller "+
-                            "that the temperature was set at: " + response.getContent());
-                    Util.log("Communicating to the User tha the agent " + response.getSender().getLocalName() + " has set " +
-                            "the temperature at: " + response.getContent());
-                    responses--;
+                    switch (response.getPerformative()) {
+                        case ACLMessage.INFORM:
+                            Util.log("The agent " + response.getSender().getLocalName() + " has communicated to the Controller " +
+                                    "that the temperature was set at: " + response.getContent());
+                            Util.log("Communicating to the User tha the agent " + response.getSender().getLocalName() + " has set " +
+                                    "the temperature at: " + response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message "+
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken");
+                            break;
+                    }
 
+                    // controlling that all the agents have answered
+                    responses--;
                     if (responses == 0) {
                         step++;
                     }

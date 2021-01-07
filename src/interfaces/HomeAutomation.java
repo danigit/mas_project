@@ -12,8 +12,8 @@ public interface HomeAutomation {
     String BROKEN = "BROKEN";
     String START = "START";
     String START_SUNFILTER = "START_SUNFILTER";
-    String STOP = "STOP";
     String STOP_SUNFILTER = "STOP_SUNFILTER";
+    String STOP = "STOP";
     String GET_STATE = "GET_STATE";
     String GET_LIST = "GET_LIST";
     String GET_TEMPERATURE = "GET_TEMPERATURE";
@@ -61,7 +61,6 @@ public interface HomeAutomation {
     // enum that defines the Fridge agent states
     enum FridgeStates{
         RUNNING,
-        NOT_RUNNING,
         BROKEN,
     }
 }

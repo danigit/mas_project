@@ -1,5 +1,5 @@
 package interfaces;
 
 public interface Window {
-    void changeWindowStatus(HomeAutomation.WindowStates windowState);
+    void changeWindowState(HomeAutomation.WindowStates windowState);
 }

@@ -28,9 +28,6 @@ public class MainDoorAgent extends Agent implements HomeAutomation, MainDoor {
     public State<DoorStates> getDoorState(){
         return this.doorState;
     }
-    public void setDoorState(DoorStates doorState){
-        this.doorState.setValue(doorState);
-    }
 
     public MainDoorAgent(){
         registerO2AInterface(MainDoor.class, this);

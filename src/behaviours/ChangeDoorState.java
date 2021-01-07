@@ -8,6 +8,10 @@ import jade.lang.acl.MessageTemplate;
 import interfaces.HomeAutomation;
 import utils.Util;
 
+/**
+ * Class that implements the behaviour that ask the door to change his state to locked or unlocked
+ * I implemented this behaviour because the User should be able to lock and unlock the door
+ */
 public class ChangeDoorState extends Behaviour {
     AID[] agents;
     HomeAutomation.DoorStates doorStatus;
@@ -40,23 +44,23 @@ public class ChangeDoorState extends Behaviour {
         switch (step) {
             // making the request
             case 0:
-                if (result != null && result.length > 0){
+                if (result != null && result.length > 0) {
                     ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
                     message.setContent(HomeAutomation.CHANGE_STATE);
                     message.addUserDefinedParameter("new_state", doorStatus.toString());
                     message.setConversationId("change-door-state");
 
-                    for (AID agent : result){
+                    for (AID agent : result) {
                         message.addReceiver(agent);
-                        Util.log(myAgent.getLocalName() + " asking the agent " + agent.getLocalName() + " to change his state in: "+
+                        Util.log(myAgent.getLocalName() + " asking the agent " + agent.getLocalName() + " to change his state in: " +
                                 doorStatus.toString());
                     }
 
                     myAgent.send(message);
                     responses = result.length;
                     step++;
-                }else{
-                    Util.log("No 'fridge-service' found");
+                } else {
+                    Util.log("No 'door-service' found");
                     step = 2;
                 }
                 break;
@@ -65,19 +69,24 @@ public class ChangeDoorState extends Behaviour {
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("change-door-state"));
 
                 if (response != null) {
-                    if( response.getPerformative() == ACLMessage.INFORM) {
-                        Util.log("Agent " + response.getSender().getLocalName() + " has informed the Controller that he changed his state to: "+
-                                response.getContent());
-                        Util.log("Informing the User that the agent " + response.getSender().getLocalName()+
-                                " is now in state " + response.getContent());
-                    } else if (response.getPerformative() == ACLMessage.FAILURE){
-                        Util.log("Agent has informed the Controller that he was not able to change his state "+
-                                "because is in state broken");
-                        Util.log("Informing the User that the agent " + response.getSender().getLocalName()+
-                                " could not change his state");
+                    switch (response.getPerformative()) {
+                        case ACLMessage.INFORM:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has informed the Controller that he changed his state to: " +
+                                    response.getContent());
+                            Util.log("Informing the User that the agent " + response.getSender().getLocalName() +
+                                    " is now in state " + response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message " +
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken");
+                            break;
                     }
+
                     responses--;
-                    if (responses == 0){
+                    // controlling that all the agents have answered
+                    if (responses == 0) {
                         step++;
                     }
                 } else {
@@ -85,7 +94,8 @@ public class ChangeDoorState extends Behaviour {
                 }
                 break;
             // finishing the behaviour
-            default: step = 2;
+            default:
+                step = 2;
         }
     }
 

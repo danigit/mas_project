@@ -58,9 +58,20 @@ public class GetFridgeList extends Behaviour {
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("get-list"));
 
                 if (response != null) {
-                    Util.log("The agent " + response.getSender().getLocalName() + " has informed the Controller that "+
-                            "the following items have to be purchased: \n" + response.getContent());
+                    switch (response.getPerformative()) {
+                        case ACLMessage.INFORM:
+                            Util.log("The agent " + response.getSender().getLocalName() + " has informed the Controller that " +
+                                "the following items have to be purchased: \n" + response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message "+
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken");
+                            break;
+                    }
 
+                    // controlling that all the agents have answered
                     listReceived--;
                     if (listReceived == 0){
                         step++;

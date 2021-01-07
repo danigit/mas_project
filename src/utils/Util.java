@@ -69,6 +69,11 @@ public class Util implements HomeAutomation {
         return null;
     }
 
+    /**
+     * Method that create a SubscriptionManager
+     * @param subscriptions - the subscriptions set
+     * @return a SubscriptionManager
+     */
     public static SubscriptionResponder.SubscriptionManager createSubscriptionManager(Set subscriptions){
         return new SubscriptionResponder.SubscriptionManager() {
             @Override
@@ -93,6 +98,14 @@ public class Util implements HomeAutomation {
         };
     }
 
+    /**
+     * Method that return a list of agents according to the length fo the agents parameter
+     * @param agent - the agent that search for a service
+     * @param agents - a list of agents
+     * @param service - the service that has to be provided by the agents
+     * @return the agents array if its length is greater then zero, otherwise it returns a list of agents
+     *         that provide the service passed as parameter
+     */
     public static AID[] getAgentsList(Agent agent,  AID[] agents, String service){
         if (agents.length > 0) {
             return agents;
@@ -106,6 +119,13 @@ public class Util implements HomeAutomation {
         }
     }
 
+    /**
+     * Method that subscribe the service of agent passed as parameter to the DFService
+     * @param agent - the agent that subscribe a service
+     * @param defaultDF - the default DFService
+     * @param serviceType - the type of the service that is subscribed
+     * @return the subscription message
+     */
     public static ACLMessage subscribeToService(Agent agent, AID defaultDF, String serviceType){
         DFAgentDescription agentDescription = new DFAgentDescription();
         ServiceDescription serviceDescription = new ServiceDescription();
@@ -114,12 +134,21 @@ public class Util implements HomeAutomation {
         return DFService.createSubscriptionMessage(agent, defaultDF, agentDescription, null);
     }
 
+    /**
+     * Method that gets the AID from an DFAgentDescription
+     * @param descriptions - the descriptions from which to retrieve the AIDs
+     * @return and array of AIDs
+     */
     public static AID[] getAIDFromDescriptions(DFAgentDescription[] descriptions){
         AID[] result = new AID[descriptions.length];
         Arrays.stream(descriptions).map(DFAgentDescription::getName).collect(Collectors.toList()).toArray(result);
         return result;
     }
 
+    /**
+     * Method that logs the string passed as parameter to System.out
+     * @param text - the string to be printed
+     */
     public static void log(String text){
         System.out.println(text);
     }
