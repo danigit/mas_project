@@ -40,8 +40,8 @@ to execute the project.
 
 ![alt text](./src/img/project_schema.png)
 
-##Project Implementation
-###Project setup
+## Project Implementation
+### Project setup
 The first stage of the project was to implement the ControllerAgent and the DoorAgent and make them communicate. So I 
 created two classes that extend the Agent class from JADE framework, one for the ControllerAgent and one for the DoorAgent. 
 I then implemented some basic behaviour for each of them, which consisted of ControllerAgent sending a message to the 
@@ -54,7 +54,7 @@ globally by the agents. Next, I declared a utility class that will contain stati
 An example of a utility method is the registration of a service to the DFServices by the agent. Since all the agents 
 have to subscribe some services, I decided to declare a unique method that can be used by all the agents.
 
-###Agents Implementation
+### Agents Implementation
 
 In this step, I define some basic behaviours for all the agents (as for the ControllerAgent and the DoorAgent). This 
 gave me a clearer view of how the system has to interact and what are the interactions that are required. I also 
@@ -99,7 +99,7 @@ class. Then I updated the behaviours of the agents in order to be compliant with
 I did was to declare in the HomeAutomation interface the strings for identifying the requests and notifications that the 
 agents send to each other.
 
-###Graphical User Interface
+### Graphical User Interface
 
 I now defined a launcher class that will create and launch the JADE platform and the defined agents. In order to be able 
 to interact with the agents, I had to declare an interface for each agent with the methods that the agent implements and 
@@ -120,7 +120,7 @@ real-time feedback on the messages that the agents are sending and receiving.
 
 ![alt text](./src/img/gui.png)
 
-##Project Refactoring
+## Project Refactoring
 
 The last step was to redefine the project structure by defining packages for the agents, behaviours, interfaces, and utils, 
 and create a folder for the images. Once I tested the correctness of the system, I did some refactoring, in particular, 
@@ -130,7 +130,7 @@ applies to the classes that extend the SubscriberResponder, most of the agents h
 same format for all of them. So what I did was to create only one and instantiate different objects of this class for each 
 agent.
 
-##Conclusions
+## Conclusions
 
 The development of the project was quite linear, without major problems. I had some problems with implementing the 
 FIPA-Subscribe protocol, because the JADE documentation is quite poor. I could not found any example on how the 
@@ -144,12 +144,12 @@ to unlock, even if the door remains in the broken state. I choose to dedicate mo
 because I think is more related to the project than the GUI. For what concern the combination of states, for example if 
 the window is opened I don’t think that I should allow to start the sun filter.
 
-##Run the application
+## Run the application
 
 I will provide with the application a jar file, so in order to execute the application is sufficient to launch the jar 
 file by double-clicking on it or from a console with the following command java –jar HomeAutomation.jar. 
 
-##References
+## References
 1 JADE Official Site: https://jade.tilab.com/ <br>
 2 Home Automation project on GitHub: https://github.com/AL333Z/JadeHomeAutomation <br>
 3 JADE Tutorial and Primer: https://www.iro.umontreal.ca/~vaucher/Agents/Jade/JadePrimer.html <br>
