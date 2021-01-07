@@ -27,9 +27,6 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
     private Set subscriptions = new HashSet();
     private final State<WindowStates> windowState = new State<>(WindowStates.CLOSED);
 
-    public void setWindowState(WindowStates windowState){
-        this.windowState.setValue(windowState);
-    }
     public State<WindowStates> getWindowState(){
         return this.windowState;
     }
@@ -73,7 +70,7 @@ public class WindowAgent extends Agent implements HomeAutomation, Window {
         }
     }
 
-    public void changeWindowStatus(WindowStates windowState) {
+    public void changeWindowState(WindowStates windowState) {
         this.windowState.setValue(windowState);
     }
 }

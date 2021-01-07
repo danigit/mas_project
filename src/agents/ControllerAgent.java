@@ -77,6 +77,7 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
                         Iterator iterator = dfd.getAllServices();
                         while (iterator.hasNext()) {
                             ServiceDescription sd = (ServiceDescription) iterator.next();
+                            // getting only the control services
                             if (sd.getType().equals("control-service")) {
                                 controlAgents.add(provided);
                             }
@@ -148,7 +149,7 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     }
 
     /**
-     * Class that implements the behaviour for handling all the incoming messages from the agents
+     * Class that implements the behaviour for handling messages from the agents
      */
     public class HandleRequests extends CyclicBehaviour{
 
@@ -178,6 +179,8 @@ public class ControllerAgent extends Agent implements HomeAutomation, Controller
     public void setHeatTemperature(AID agents, double temperature){
         this.addBehaviour(new SetHeatTemperatureBehaviour(agents, temperature));
     }
+
+    //
     public void changeDoorState(AID agent, DoorStates newStatus) {
         this.addBehaviour(new ChangeDoorState(agent, newStatus));
     }

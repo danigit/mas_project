@@ -60,11 +60,22 @@ public class GetDoorState extends Behaviour {
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("get-door-state"));
 
                 if (response != null){
-                    Util.log("Agent " + response.getSender().getLocalName() + " has informed the Controller "+
-                            "that it is in state: " + response.getContent());
-                    Util.log("Informing the User that the " + response.getSender().getLocalName() + " is in state: "+
-                            response.getContent());
+                    switch (response.getPerformative()){
+                        case ACLMessage.INFORM:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has informed the Controller "+
+                                    "that it is in state: " + response.getContent());
+                            Util.log("Informing the User that the " + response.getSender().getLocalName() + " is in state: "+
+                                    response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message "+
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken.");
+                            break;
+                    }
 
+                    // controlling that all the agents have answered
                     responses--;
                     if (responses == 0){
                         step++;

@@ -1,5 +1,5 @@
 package interfaces;
 
 public interface Shutter {
-    void changeShutterStatus(HomeAutomation.ShutterStates shutterState);
+    void changeShutterState(HomeAutomation.ShutterStates shutterState);
 }

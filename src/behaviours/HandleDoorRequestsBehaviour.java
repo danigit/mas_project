@@ -29,17 +29,18 @@ public class HandleDoorRequestsBehaviour extends CyclicBehaviour {
                             response.setContent(agent.getDoorState().getValue().toString());
                         } else if (messageContent.equals(HomeAutomation.CHANGE_STATE)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setDoorState(HomeAutomation.DoorStates.valueOf(message.getUserDefinedParameter("new_state")));
+                            agent.changeDoorState(HomeAutomation.DoorStates.valueOf(message.getUserDefinedParameter("new_state")));
                             response.setContent(agent.getDoorState().getValue().toString());
                         } else {
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
+                        myAgent.send(response);
                     } else {
                         response.setPerformative(ACLMessage.FAILURE);
                         response.setContent("Unable to access the Door because is broken.");
+                        myAgent.send(response);
                     }
-                    myAgent.send(response);
                     break;
             }
         } else {

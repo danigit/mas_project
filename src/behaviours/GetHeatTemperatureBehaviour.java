@@ -58,12 +58,21 @@ public class GetHeatTemperatureBehaviour extends Behaviour {
             case 1:
                 ACLMessage response = myAgent.receive(MessageTemplate.MatchConversationId("get-temp-value"));
                 if (response != null){
+                    switch (response.getPerformative()) {
+                        case ACLMessage.INFORM:
+                            Util.log("The agent " + response.getSender().getLocalName() + " has informed the controller that " +
+                                    "the temperature is: " + response.getContent());
+                            break;
+                        case ACLMessage.FAILURE:
+                            Util.log("Agent " + response.getSender().getLocalName() + " has sent the following message "+
+                                    "to the ControllerAgent: " + response.getContent());
+                            Util.log("Informing the User that the the agent " + response.getSender().getLocalName() +
+                                    " is broken");
+                            break;
+                    }
 
-                    Util.log("The agent " + response.getSender().getLocalName() + " has informed the controller that "+
-                            "the temperature is: " + response.getContent());
+                    // controlling that all the agents have answered
                     responses--;
-
-                    Util.log("Informing the User that the temperature is: " + response.getContent());
                     if (responses == 0) {
                         step++;
                     }

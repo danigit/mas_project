@@ -4,7 +4,6 @@ import agents.HeatAgent;
 import interfaces.HomeAutomation;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
 public class HandleHeatRequestsBehaviour extends CyclicBehaviour {
 
@@ -27,11 +26,11 @@ public class HandleHeatRequestsBehaviour extends CyclicBehaviour {
                     if (agent.getHeatState() != HomeAutomation.HeatStates.BROKEN) {
                         if (HomeAutomation.START.equals(messageContent)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setHeatState(HomeAutomation.HeatStates.RUNNING);
+                            agent.changeHeatState(HomeAutomation.HeatStates.RUNNING);
                             response.setContent(agent.getHeatState().toString());
                         } else if (HomeAutomation.STOP.equals(messageContent)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setHeatState(HomeAutomation.HeatStates.SHUT_DOWN);
+                            agent.changeHeatState(HomeAutomation.HeatStates.SHUT_DOWN);
                             response.setContent(agent.getHeatState().toString());
                         } else if (HomeAutomation.GET_TEMPERATURE.equals(messageContent)) {
                             response.setPerformative(ACLMessage.INFORM);
@@ -45,11 +44,12 @@ public class HandleHeatRequestsBehaviour extends CyclicBehaviour {
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
+                        myAgent.send(response);
                     } else{
                         response.setPerformative(ACLMessage.FAILURE);
                         response.setContent("Unable to access the Heat because is broken.");
+                        myAgent.send(response);
                     }
-                    myAgent.send(response);
                     break;
             }
         } else {

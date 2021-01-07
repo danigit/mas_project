@@ -25,21 +25,22 @@ public class HandleShutterRequestsBehaviour extends CyclicBehaviour {
                     if (agent.getShutterState().getValue() != HomeAutomation.ShutterStates.BROKEN) {
                         if (messageContent.equals(HomeAutomation.UP_SHUTTER)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setShutterState(HomeAutomation.ShutterStates.UP);
+                            agent.changeShutterState(HomeAutomation.ShutterStates.UP);
                             response.setContent(agent.getShutterState().getValue().toString());
                         } else if (messageContent.equals(HomeAutomation.DOWN_SHUTTER)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setShutterState(HomeAutomation.ShutterStates.DOWN);
+                            agent.changeShutterState(HomeAutomation.ShutterStates.DOWN);
                             response.setContent(agent.getShutterState().getValue().toString());
                         } else {
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
+                        myAgent.send(response);
                     } else{
                         response.setPerformative(ACLMessage.FAILURE);
                         response.setContent("Unable to access the Shutter because is broken.");
+                        myAgent.send(response);
                     }
-                    myAgent.send(response);
                     break;
             }
         } else {

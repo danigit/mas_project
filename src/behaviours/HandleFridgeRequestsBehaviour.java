@@ -27,21 +27,22 @@ public class HandleFridgeRequestsBehaviour extends CyclicBehaviour {
                 case ACLMessage.REQUEST:
                     if (agent.getFridgeState().getValue() != HomeAutomation.FridgeStates.BROKEN) {
                         if (messageContent.equals(HomeAutomation.GET_LIST)) {
+                            // converting the list into a string
                             String listString = agent.getList().keySet().stream().map(key -> key + "=" + agent.getList().get(key))
                                     .collect(Collectors.joining(", ", "{", "}"));
 
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(listString);
-                            myAgent.send(response);
                         } else{
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
+                        myAgent.send(response);
                     } else {
                         response.setPerformative(ACLMessage.FAILURE);
                         response.setContent("Unable to access the Fridge because is broken.");
+                        myAgent.send(response);
                     }
-                    myAgent.send(response);
                     break;
             }
         } else{

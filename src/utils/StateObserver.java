@@ -2,13 +2,17 @@ package utils;
 
 import interfaces.HomeAutomation;
 import jade.lang.acl.ACLMessage;
-import utils.Util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Observable;
 import java.util.Observer;
 
+/**
+ * Class that allows to notify the undersigned's that a state has changed
+ * @param <T> - the state that has changed his value
+ * @param <U> - the undersigned's to notify
+ */
 public class StateObserver<T, U> implements Observer, HomeAutomation {
     private T state;
     private U subscriptions;

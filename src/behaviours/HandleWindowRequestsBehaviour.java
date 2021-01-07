@@ -24,20 +24,22 @@ public class HandleWindowRequestsBehaviour extends CyclicBehaviour {
                     if (agent.getWindowState().getValue() != HomeAutomation.WindowStates.BROKEN) {
                         if (messageContent.equals(HomeAutomation.START_SUNFILTER)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_ON);
+                            agent.changeWindowState(HomeAutomation.WindowStates.SUNFILTER_ON);
                             response.setContent(agent.getWindowState().getValue().toString());
                         } else if (messageContent.equals(HomeAutomation.STOP_SUNFILTER)) {
                             response.setPerformative(ACLMessage.INFORM);
-                            agent.setWindowState(HomeAutomation.WindowStates.SUNFILTER_OFF);
+                            agent.changeWindowState(HomeAutomation.WindowStates.SUNFILTER_OFF);
                             response.setContent(agent.getWindowState().getValue().toString());
                         } else {
                             response.setPerformative(ACLMessage.INFORM);
                             response.setContent(HomeAutomation.UNKNOWN_COMMAND);
                         }
+                        myAgent.send(response);
                     } else {
                         response.setPerformative(ACLMessage.FAILURE);
+                        response.setContent("Unable to access the Window because is broken.");
+                        myAgent.send(response);
                     }
-                    myAgent.send(response);
                     break;
             }
         } else {
