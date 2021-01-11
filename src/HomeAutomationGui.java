@@ -17,8 +17,8 @@ import interfaces.*;
 public class HomeAutomationGui extends JFrame{
     private JFrame frame;
     private JPanel mainPannel;
-
     private JPanel userPannel;
+
     private JLabel titleLabel;
     private JLabel userImageLabel;
     private JLabel doorIcon;
@@ -26,8 +26,6 @@ public class HomeAutomationGui extends JFrame{
     private JLabel windowIcon;
     private JLabel shutterIcon;
 
-    private JRadioButton lockDoorRadioButton;
-    private JRadioButton unlockDoorRadioButton;
 
     private JCheckBox brokeDoorCheckBox;
     private JCheckBox brokeFridgeCheckBox;
@@ -51,8 +49,6 @@ public class HomeAutomationGui extends JFrame{
     private JButton sendBuyListButton;
     private JLabel heatIcon;
 
-    private ButtonGroup doorGroup;
-
     Runtime runtime;
     Profile configuration;
     ContainerController mainContainer;
@@ -68,12 +64,9 @@ public class HomeAutomationGui extends JFrame{
     Window windowAgent;
     Shutter shutterAgent;
 
-    private void createRadioGroup(){
-        doorGroup = new ButtonGroup();
-        doorGroup.add(lockDoorRadioButton);
-        doorGroup.add(unlockDoorRadioButton);
-    }
-
+    /**
+     * Method that handles the door actions
+     */
     private void handleDoor(){
         lockDoorButton.addActionListener(e -> {
             try {
@@ -115,6 +108,9 @@ public class HomeAutomationGui extends JFrame{
         });
     }
 
+    /**
+     * Method that handles the fridge actions
+     */
     private void handleFridge(){
         getListButton.addActionListener(e -> {
             try {
@@ -139,6 +135,9 @@ public class HomeAutomationGui extends JFrame{
         sendBuyListButton.addActionListener(e -> fridgeAgent.buyList());
     }
 
+    /**
+     * Method that handles the heat actions
+     */
     private void handleHeat(){
         startHeatButton.addActionListener(e -> {
             try {
@@ -176,6 +175,9 @@ public class HomeAutomationGui extends JFrame{
         });
     }
 
+    /**
+     * Method that handles the window actions
+     */
     public void handleWindow() {
         activateSunfilterButton.addActionListener(e ->  {
             try {
@@ -198,16 +200,19 @@ public class HomeAutomationGui extends JFrame{
         brokeWindowCheckBox.addActionListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
             if (checkBox.isSelected()){
-                windowAgent.changeWindowStatus(HomeAutomation.WindowStates.BROKEN);
+                windowAgent.changeWindowState(HomeAutomation.WindowStates.BROKEN);
                 windowIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_window.png")));
             }
             else{
-                windowAgent.changeWindowStatus(HomeAutomation.WindowStates.CLOSED);
+                windowAgent.changeWindowState(HomeAutomation.WindowStates.CLOSED);
                 windowIcon.setIcon(new ImageIcon(getClass().getResource("img/close_window.png")));
             }
         });
     }
 
+    /**
+     * Method that handles the shutter actions
+     */
     public void handleShutter(){
         openShutterButton.addActionListener(e -> {
             try {
@@ -230,19 +235,19 @@ public class HomeAutomationGui extends JFrame{
         brokeShutterCheckBox.addActionListener(e ->  {
             JCheckBox checkBox = (JCheckBox) e.getSource();
             if (checkBox.isSelected()){
-                shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.BROKEN);
+                shutterAgent.changeShutterState(HomeAutomation.ShutterStates.BROKEN);
                 shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/broken_shutter.png")));
             }
             else{
-                shutterAgent.changeShutterStatus(HomeAutomation.ShutterStates.UP);
+                shutterAgent.changeShutterState(HomeAutomation.ShutterStates.UP);
                 shutterIcon.setIcon(new ImageIcon(getClass().getResource("img/closed_shutter.png")));
             }
         });
     }
-    public static void main(String[] args){ ;
+
+    public static void main(String[] args){
         HomeAutomationGui homeAutomationGui = new HomeAutomationGui();
 
-        homeAutomationGui.createRadioGroup();
         homeAutomationGui.handleDoor();
         homeAutomationGui.handleFridge();
         homeAutomationGui.handleHeat();
@@ -301,7 +306,7 @@ public class HomeAutomationGui extends JFrame{
      *
      */
     private static class CustomOutputStream extends OutputStream {
-        private JTextArea textArea;
+        private final JTextArea textArea;
 
         public CustomOutputStream(JTextArea textArea) {
             this.textArea = textArea;
